@@ -5,6 +5,7 @@ usage() {
   exit 1
 }
 
+#FIXME make less redundant
 findFirst() {
     for cmd; do
         if [ "$cmd" != "${cmd%/*}" ]; then

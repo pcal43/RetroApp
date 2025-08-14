@@ -2,10 +2,10 @@
 
 buildStandardBundle
 
-cp -c -r "$CLI_EMULATOR_PATH" "$APP_DIR/Contents/MacOS/nestopia"
+LAUNCH_ROM=$(findLaunchRom "*.nes" "*.zip" "*.7z" "*.fds" "*.*")
 
 cat <<EOF > "$APP_DIR/Contents/MacOS/run"
 #!/bin/sh
-MACOS_DIR=\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)
-"\$MACOS_DIR/nestopia" --fullscreen "\$MACOS_DIR/../Resources/$CLI_MAIN_ROM"
+APP_DIR=\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../..
+"\$APP_DIR/$CLI_PACKAGED_EMULATOR_PATH" -nogui -fastboot -fullscreen -batch -- "\$APP_DIR/$CLI_PACKAGED_ROMS_PATH/$LAUNCH_ROM"
 EOF

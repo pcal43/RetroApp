@@ -6,7 +6,7 @@
 #
 
 usage() {
-  echo "Usage: retroapp build [-e emulator] [-i icon] [roms...]" >&2
+  echo "Usage: retroapp build [-n appName] [-b blueprint] [-e emulator] [-i icon] [-r roms] [-R launchRom]" >&2
   exit 1
 }
 
@@ -20,7 +20,8 @@ while getopts "n:t:e:b:r:i:o:h" opt; do
     n) CLI_APP_NAME="$OPTARG" ;;
     b) CLI_BLUEPRINT="$OPTARG" ;;
     e) CLI_EMULATOR_PATH="$OPTARG" ;;
-    r) if [ -z "${ROMS:-}" ]; then CLI_ROMS="$OPTARG"; else CLI_ROMS="$ROMS:$OPTARG"; fi ;;
+    r) CLI_ROMS="$OPTARG"; ;;
+    R) CLI_LAUNCH_ROM="$OPTARG"; ;;
     i) CLI_ICON_IMAGE="$OPTARG" ;;
     o) CLI_OUTPUT_DIR="$OPTARG" ;;
     h) usage ;;
@@ -45,7 +46,7 @@ else
 fi
 
 if [ -z "${CLI_ROMS:-}" ]; then
-  echo "At least one ROM file must be specified" >&2
+  echo "At least one ROM file or folder must be specified" >&2
   usage
 fi
 
@@ -74,11 +75,18 @@ fi
 TMP_DIR=$(mktemp -d -t retroapp-build)
 APP_DIR="$TMP_DIR/${CLI_APP_NAME}.app"
 
+CLI_EMULATOR_BASENAME=$(basename "$CLI_EMULATOR_PATH")
+CLI_PACKAGED_EMULATOR_PATH="Contents/MacOS/$CLI_EMULATOR_BASENAME"
+CLI_PACKAGED_ROMS_PATH="Contents/Resources/Roms"
+CLI_PACKAGED_CONFIG_PATH="Contents/Resources/Config"
+
+
 buildStandardBundle() {
 
   # Set up the basic bundle directory structure
-  mkdir -p "$APP_DIR/Contents/Resources"
   mkdir -p "$APP_DIR/Contents/MacOS"
+  mkdir -p "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+  mkdir -p "$APP_DIR/$CLI_PACKAGED_CONFIG_PATH"
 
   # Write the plist file
   cat <<EOF > "$APP_DIR/Contents/Info.plist"
@@ -123,24 +131,117 @@ EOF
     fi
   fi
 
+  # Copy the emulator
+  cp -c -r "$CLI_EMULATOR_PATH" "$APP_DIR/$CLI_PACKAGED_EMULATOR_PATH"
+
   # Copy the roms
-  IFS=:
-  set -- "$CLI_ROMS"
-  for SRC_PATH; do
-      BASE_NAME=$(basename "$SRC_PATH")
-      if [ -z "${CLI_MAIN_ROM:-}" ]; then
-          CLI_MAIN_ROM=$BASE_NAME
-      fi
-      cp -r "$SRC_PATH" "$APP_DIR/Contents/Resources/$BASE_NAME"
-  done
+  if [ -f "$CLI_ROMS" ]; then
+      cp -c "$CLI_ROMS" "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+  elif [ -d "$CLI_ROMS" ]; then
+      cp -c -r "$CLI_ROMS"/* "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+  fi
 
-
-  CLI_EMULATOR_BASENAME=$(basename "$CLI_EMULATOR_PATH")
-  CLI_PACKAGED_ROM_PATH="Contents/Resources/$CLI_MAIN_ROM"
+  ls -laR "$APP_DIR"
 }
 
+findLaunchRom() {
+    if [ -n "${LAUNCH_ROM:-}" ]; then
+        printf "%s" "${LAUNCH_ROM}"
+        return 0
+    fi
 
+    # Use the ROM directory path directly
+    rom_dir="$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
 
+    # Process all arguments
+    for cmd do
+        if [ "$cmd" != "${cmd%/*}" ]; then
+            # If the expression contains any slashes, assume it's a direct file path
+            if [ "$cmd" != "${cmd%\**}" ]; then
+                # cmd contains an asterisk, treat as a glob pattern
+                # Change to the ROM directory to use shell globbing
+                old_pwd=$(pwd)
+                cd "$rom_dir" || return 1
+
+                # Use shell globbing directly instead of find
+                # Count matches first
+                match_count=0
+                last_match=""
+                for match in $cmd; do
+                    if [ -e "$match" ]; then
+                        match_count=$((match_count + 1))
+                        last_match="$match"
+                    fi
+                done
+
+                if [ "$match_count" -eq 0 ]; then
+                    # No matches
+                    cd "$old_pwd" || true
+                elif [ "$match_count" -eq 1 ]; then
+                    # Exactly one match
+                    cd "$old_pwd" || true
+                    printf "%s" "$last_match"
+                    return 0
+                else
+                    # Multiple matches - error
+                    cd "$old_pwd" || true
+                    echo "Error: Multiple ROM files match pattern '$cmd'. Please specify a launch rom with -R." >&2
+                    exit "$EXIT_AMBIGUOUS_LAUNCH_ROM"
+                fi
+
+                cd "$old_pwd" || true
+            else
+                # No glob pattern, just check if file exists directly
+                if [ -e "$rom_dir/$cmd" ]; then
+                    printf "%s" "$cmd"
+                    return 0
+                fi
+            fi
+        else
+            # For simple filenames without paths, check if the file exists
+            if [ -e "$rom_dir/$cmd" ]; then
+                printf "%s" "$cmd"
+                return 0
+            fi
+
+            # Also check for patterns like *.nes (no directory part)
+            if [ "$cmd" != "${cmd%\**}" ]; then
+                old_pwd=$(pwd)
+                cd "$rom_dir" || return 1
+
+                # Count matches first
+                match_count=0
+                last_match=""
+                for match in $cmd; do
+                    if [ -e "$match" ]; then
+                        match_count=$((match_count + 1))
+                        last_match="$match"
+                    fi
+                done
+
+                if [ "$match_count" -eq 0 ]; then
+                    # No matches
+                    cd "$old_pwd" || true
+                elif [ "$match_count" -eq 1 ]; then
+                    # Exactly one match
+                    cd "$old_pwd" || true
+                    printf "%s" "$last_match"
+                    return 0
+                else
+                    # Multiple matches - error
+                    cd "$old_pwd" || true
+                    echo "Error: Multiple ROM files match pattern '$cmd'. Please be more specific." >&2
+                    exit "$EXIT_NEED_LAUNCH_ROM"
+                fi
+
+                cd "$old_pwd" || true
+            fi
+        fi
+    done
+
+    echo "Could not determine which ROM to launch with. Please specify one with -R." >&2
+    exit "$EXIT_NEED_LAUNCH_ROM"
+}
 
 # Now run the blueprint build code to do emulator-specific stuff
 source "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/build.sh"

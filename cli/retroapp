@@ -16,7 +16,8 @@ EXIT_NO_SUBCOMMAND=4
 EXIT_EMULATOR_NOT_FOUND=50
 # shellcheck disable=SC2034
 EXIT_BAD_EMULATOR=51
-
+EXIT_NEED_LAUNCH_ROM=60
+EXIT_AMBIGUOUS_LAUNCH_ROM=61
 
 usage() {
   echo "Usage: retroapp [-h] [-v] [-x] SUBCOMMAND SUBCOMMAND-ARGUMENTS..." >&2
@@ -47,6 +48,8 @@ fi
 
 shift  # Remove subcommand name
 OPTIND=1
+
+
 
 # shellcheck disable=SC1090
 . "$RA_SUBCOMMAND"
