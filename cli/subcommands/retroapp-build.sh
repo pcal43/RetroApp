@@ -125,15 +125,22 @@ EOF
 
   # Copy the roms
   IFS=:
-  set -- $CLI_ROMS
+  set -- "$CLI_ROMS"
   for SRC_PATH; do
       BASE_NAME=$(basename "$SRC_PATH")
-      if [ -z ${CLI_MAIN_ROM:-} ]; then
+      if [ -z "${CLI_MAIN_ROM:-}" ]; then
           CLI_MAIN_ROM=$BASE_NAME
       fi
       cp -r "$SRC_PATH" "$APP_DIR/Contents/Resources/$BASE_NAME"
   done
+
+
+  CLI_EMULATOR_BASENAME=$(basename "$CLI_EMULATOR_PATH")
+  CLI_PACKAGED_ROM_PATH="Contents/Resources/$CLI_MAIN_ROM"
 }
+
+
+
 
 # Now run the blueprint build code to do emulator-specific stuff
 source "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/build.sh"
