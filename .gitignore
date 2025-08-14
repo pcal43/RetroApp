@@ -1,0 +1,20 @@
+build/
+*~
+\#*
+
+# intellij
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# vscode
+.settings/
+.vscode/
+.classpath
+.project
+
+# macos
+*.DS_Store
+
+

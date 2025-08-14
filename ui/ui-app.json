@@ -1,0 +1,28 @@
+{
+  "title": "RetroApp",
+  "message": "Please provide a name and icon for your app.",
+  "moveable": true,
+  "resizable": true,
+  "id": "RetroApp",
+  "windowbuttons": ["close", "min", "max"],
+  "ontop": true,
+  "messageposition": "top",
+
+  "infobutton": true,
+  "infobuttontext" : "Quit",
+
+  "textfield": [
+    {
+      "title": "App Name",
+      "value": "${UI_APP_NAME}",
+      "required" : true
+    },
+    {
+      "title": "App Icon",
+      "value": "${UI_ICON_PATH}",
+      "fileselect" : true,
+      "prompt" : "Leave blank for a default icon"
+    }
+  ],
+  "button1text": "Build App"
+}

@@ -1,0 +1,23 @@
+{
+  "title": "RetroApp",
+  "message": "${UI_MESSAGE}",
+  "moveable": true,
+  "resizable": true,
+  "id": "EMU",
+  "windowbuttons": ["close", "min", "max"],
+  "ontop": true,
+  "messageposition": "top",
+
+  "infobutton": true,
+  "infobuttontext" : "Quit",
+
+  "textfield": [
+    {
+      "title": "Emulator Path",
+      "value": "${UI_EMULATOR_PATH}",
+      "fileselect" : true,
+      "required" : true
+    }
+  ],
+  "button1text": "Next"
+}

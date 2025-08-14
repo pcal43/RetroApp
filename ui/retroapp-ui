@@ -1,0 +1,90 @@
+#!/bin/sh
+
+set -eux
+
+TMP_DIR=$(mktemp -d -t retroapp)
+LOG_DIR="$TMP_DIR/logs"
+mkdir -p "$LOG_DIR"
+exec > "$LOG_DIR/ui.log" 2>&1
+
+RA_SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+RA_SWIFT_DIALOG="$RA_SCRIPT_DIR/swiftDialog"
+RA_JQ="$RA_SCRIPT_DIR/jq"
+RA_RETROAPP="$RA_SCRIPT_DIR/../cli/retroapp"
+
+
+
+UI_ROM_PATH="${1:-}"
+if [ -n "${UI_ROM_PATH:-}" ]; then
+  UI_BLUEPRINT=$("$RA_RETROAPP" guess-blueprint "$UI_ROM_PATH")
+fi
+
+UI_BLUEPRINT_SELECTIONS=$("$RA_RETROAPP" list-blueprints)
+UI_BLUEPRINT_SELECTIONS=$(echo "$UI_BLUEPRINT_SELECTIONS" | awk -F, '{for(i=1;i<=NF;i++) $i="\"" $i "\""}1' OFS=,)
+
+#
+# Ask them for a ROM file and to pick an emulator
+#
+DIALOG_JSON=$(sed \
+  -e "s|\${UI_ROM_PATH}|${UI_ROM_PATH:-}|g" \
+  -e "s|\${UI_BLUEPRINT_SELECTIONS}|$UI_BLUEPRINT_SELECTIONS|g" \
+  -e "s|\${UI_BLUEPRINT}|$UI_BLUEPRINT|g" \
+  "$RA_SCRIPT_DIR/ui-rom.json" )
+echo "$DIALOG_JSON"
+DIALOG_JSON=$(echo "$DIALOG_JSON" | tr '\r\n' '  ')   # collapse it onto one line so we can pass it to --jsonstring
+DIALOG_OUTPUT=$("$RA_SWIFT_DIALOG" --json --vieworder "textfield,dropdown" --jsonstring "$DIALOG_JSON")
+echo "$DIALOG_OUTPUT"
+# This would be better with jq but I'm trying to avoid introducing the dependency.
+# Getting UI_EMULATOR here is especially fragile, since it's nested and only accidentlly unique.
+UI_ROM_PATH=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."ROM File" // empty')
+UI_BLUEPRINT=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."Emulator:".selectedValue // empty')
+
+#
+# Based on their blueprint selection, try to find the emulator installed on their machine
+#
+set +e
+UI_EMULATOR_PATH=$($RA_RETROAPP find-emulator "$UI_BLUEPRINT")
+set -e
+
+#
+# Ask them to confirm or provide the path to the emulator
+#
+if [ -z "${UI_EMULATOR_PATH:-}" ]; then
+  UI_MESSAGE="Please locate the installation of **${UI_BLUEPRINT}** that your app should use."
+else
+  UI_MESSAGE="**${UI_BLUEPRINT}** was found on your system at the location below.  You may change this if you want to use a different installation."
+fi
+
+DIALOG_JSON=$(sed \
+  -e "s|\${UI_EMULATOR_PATH}|${UI_EMULATOR_PATH:-}|g" \
+  -e "s|\${UI_MESSAGE}|${UI_MESSAGE:-}|g" \
+  "$RA_SCRIPT_DIR/ui-emulator.json")
+echo "$DIALOG_JSON"
+DIALOG_JSON=$(echo "$DIALOG_JSON" | tr '\r\n' '  ')   # collapse it onto one line so we can pass it to --jsonstring
+DIALOG_OUTPUT=$("$RA_SWIFT_DIALOG" --json --jsonstring "$DIALOG_JSON")
+echo "$DIALOG_OUTPUT"
+UI_EMULATOR_PATH=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."Emulator Path" // empty')
+
+#
+# Ask them to confirm/provide a name for the app along with an icon.
+#
+UI_APP_NAME=$(basename "${UI_ROM_PATH%.*}") # base it on the rom name by default
+DIALOG_JSON=$(sed \
+  -e "s|\${UI_APP_NAME}|${UI_APP_NAME:-MyApp}|g" \
+  -e "s|\${UI_ICON_PATH}|${UI_ICON_PATH:-}|g" \
+  "$RA_SCRIPT_DIR/ui-app.json" | tr '\r\n' '  ')
+DIALOG_OUTPUT=$("$RA_SWIFT_DIALOG" --json --jsonstring "$DIALOG_JSON")
+UI_APP_NAME=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."App Name" // empty')
+UI_ICON_PATH=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."App Icon" // empty')
+
+# TODO add options for specifying a separate game directory
+
+
+
+
+[ -n "$UI_ICON_PATH" ] && ICON_ARG="-i \"$UI_ICON_PATH\"" || ICON_ARG=""
+set +e
+"$RA_RETROAPP" -x build -n "$UI_APP_NAME" -b "$UI_BLUEPRINT" -e "$UI_EMULATOR_PATH" -r "$UI_ROM_PATH" $ICON_ARG -o "$TMP_DIR" > "$LOG_DIR/build.log" 2>&1
+set -e
+
+open "$TMP_DIR"

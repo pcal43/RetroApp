@@ -1,0 +1,54 @@
+#!/bin/sh
+
+#
+# Good source for images
+# https://gamesdb.launchbox-app.com/games/images/5167-ssx
+#
+
+
+# Check arguments
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 input_image output.icns" >&2
+  exit 1
+fi
+
+INPUT="$1"
+OUTPUT="$2"
+
+# Check input file existence
+if [ ! -f "$INPUT" ]; then
+  echo "Input file not found: $INPUT" >&2
+  exit 1
+fi
+
+# Create a unique temp directory for the iconset
+TMP_DIR=$(mktemp -d -t retroapp-make-icon)
+TMP_ICONSET="$TMP_DIR/temp.iconset"
+mkdir -p "$TMP_ICONSET"
+if [ ! -d "$TMP_ICONSET" ]; then
+  echo "Failed to create temporary directory" >&2
+  exit 1
+fi
+
+# Sizes needed for macOS iconset
+SIZES="16 32 64 128 256 512 1024"
+
+for size in $SIZES; do
+  sips  -s format png -z "$size" "$size" "$INPUT" --out "$TMP_ICONSET/icon_${size}x${size}.png" >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Error resizing image to ${size}x${size}" >&2
+    exit 1
+  fi
+done
+
+iconutil -c icns -o "$OUTPUT" "$TMP_ICONSET"
+if [ $? -ne 0 ]; then
+  echo "Error creating .icns file" >&2
+  exit 1
+fi
+
+# Cleanup temp directory
+#rm -rf "$TMP_ICONSET"
+
+echo "Created $OUTPUT"
+exit 0
