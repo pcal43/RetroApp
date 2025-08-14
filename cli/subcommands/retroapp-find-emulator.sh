@@ -71,8 +71,13 @@ else
   fi
 fi
 
+
 # shellcheck disable=SC1090
-. "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/find-emulator.sh"
+# load the BP_xxx metadata for the chosen blueprint
+. "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/blueprint-info.sh"
+
+# shellcheck disable=SC2086
+findFirst $BP_EMULATOR_SEARCH_PATH
 
 
 

@@ -6,7 +6,64 @@
 #
 
 usage() {
-  echo "Usage: retroapp build [-n appName] [-b blueprint] [-e emulator] [-i icon] [-r roms] [-R launchRom]" >&2
+  echo "Usage: retroapp build [-h] [arguments...]
+
+    -h                   Print this message.
+
+    -n appName           The name of the launcher app to build.
+                         Usually just the name of the game.
+                         Required.
+
+    -b blueprintName     The type of the app, e.g., nestopia or pcsx2.
+                         Run 'retroapp list-blueprints' for a full list.
+                         Required.
+
+    -r romsPath          Path to rom file or directory of roms to embed.
+                         Required.
+
+    -R launchRomName     Name of rom file to pass to emulator.
+                         Optional.  If omitted, RetroApp will attempt to
+                         to make an educated guess.
+
+    -e emulatorPath      Path to the emulator application to embed.
+                         Optional.  If omitted, RetroApp will attempt
+                         to locate an appropriate emulator on your machine.
+
+    -i appIconPath       Path to an image file to use as an app icon.
+                         Optional.  If omitted, a default icon will be used.
+
+    -c [settingsDir]     Enables bundling emulator config settings (e.g.,
+                         including BIOS files) into the launcher app.
+
+                         If -c is set without a path, an educated guess will
+                         be made about where the emulator stores its settings.
+                         (usually under ~/Library/Application Support/).
+
+                         Optional.  Somewhat pointless unless -C is also set.
+
+    -C [settingsDir]     Enables unbundling of default emulator config
+                         settings (e.g., BIOS files) when the app is run on a
+                         new machine.  This step will be skipped if the targetPath
+                         already exists on the machine (i.e., if the emulator
+                         has been run before).
+
+                         If -c is set without a path, an educated guess will
+                         be made about where the emulator stores its settings.
+                         (usually under ~/Library/Application Support/).
+
+                         If a path *is* set, the value \$HOME should be used
+                         to specify the user's home directory at runtime, e.g.,
+
+                           -C \$HOME/Library/Application\ Support/Castlevania
+
+                         As shown in the example above, it is possible to use
+                         this flag to enable per-game config settings.  However,
+                         this is not supported by all emulators, in which case,
+                         settings unbundles into a settings directory other than
+                         the emulator's default will be ignored.
+
+                         Optional.  Somewhat pointless unless -c is also set.
+  " >&2
   exit 1
 }
 
@@ -15,7 +72,7 @@ exit_emulatorNotFound() {
     exit 80
 }
 
-while getopts "n:t:e:b:r:i:o:h" opt; do
+while getopts "n:t:e:b:r:R:i:o:c:C:h" opt; do
   case $opt in
     n) CLI_APP_NAME="$OPTARG" ;;
     b) CLI_BLUEPRINT="$OPTARG" ;;
@@ -24,6 +81,12 @@ while getopts "n:t:e:b:r:i:o:h" opt; do
     R) CLI_LAUNCH_ROM="$OPTARG"; ;;
     i) CLI_ICON_IMAGE="$OPTARG" ;;
     o) CLI_OUTPUT_DIR="$OPTARG" ;;
+    c) if [ -n "$OPTARG" ] && [ "$(echo "$OPTARG" | cut -c1)" != "-" ]; then
+           CLI_CONFIG_SOURCE_DIR="$OPTARG"
+         else
+           CLI_CONFIG_SOURCE_DIR=""
+           OPTIND=$((OPTIND - 1))
+         fi ;;
     h) usage ;;
     *) usage ;;
   esac
@@ -31,24 +94,6 @@ done
 shift $((OPTIND - 1))
 
 
-if [ -z "${CLI_APP_NAME:-}" ]; then
-  echo "An app name must be specified." >&2
-  usage
-fi
-
-if [ -n "${CLI_OUTPUT_DIR:-}" ]; then
-  if [ ! -d "$CLI_OUTPUT_DIR" ]; then
-    echo "Error: $CLI_OUTPUT_DIR is not an existing directory." >&2
-    exit 1
-  fi
-else
-  CLI_OUTPUT_DIR="$PWD"
-fi
-
-if [ -z "${CLI_ROMS:-}" ]; then
-  echo "At least one ROM file or folder must be specified" >&2
-  usage
-fi
 
 if [ -z "${CLI_BLUEPRINT:-}" ]; then
   echo "An blueprint must be specified.  Must be one of $($RA_RETROAPP list-blueprints)" >&2
@@ -60,10 +105,31 @@ else
   fi
 fi
 
+
+
+if [ -z "${CLI_APP_NAME:-}" ]; then
+  echo "An app name must be specified." >&2
+  usage
+fi
+
+if [ -z "${CLI_ROMS:-}" ]; then
+  echo "At least one ROM file or folder must be specified" >&2
+  usage
+fi
+
 # If they specified and icon file, make sure the file exists.
 if [ -n "${CLI_ICON_IMAGE:-}" ] && [ ! -f "$CLI_ICON_IMAGE" ]; then
   echo "No image file found at $CLI_ICON_IMAGE"
   exit 1
+fi
+
+if [ -n "${CLI_OUTPUT_DIR:-}" ]; then
+  if [ ! -d "$CLI_OUTPUT_DIR" ]; then
+    echo "Error: $CLI_OUTPUT_DIR is not an existing directory." >&2
+    exit 1
+  fi
+else
+  CLI_OUTPUT_DIR="$PWD"
 fi
 
 # If they didn't specify a path to an emulator, try to find it for them.
@@ -72,18 +138,26 @@ if [ -z "${CLI_EMULATOR_PATH:-}" ]; then
   CLI_EMULATOR_PATH=$("$RA_RETROAPP" find-emulator "$CLI_BLUEPRINT")
 fi
 
+# shellcheck disable=SC1090
+# load the BP_xxx metadata for the chosen blueprint
+. "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/blueprint-info.sh"
+
+if [ -n "${CLI_CONFIG_SOURCE_DIR+x}" ] && [ -z "$CLI_CONFIG_SOURCE_DIR" ]; then
+  # if they specified -c without a path, use the blueprint default
+  CLI_CONFIG_SOURCE_DIR=$(eval echo "$BP_EMULATOR_SETTINGS_DIR")
+fi
+
+
+
 TMP_DIR=$(mktemp -d -t retroapp-build)
 APP_DIR="$TMP_DIR/${CLI_APP_NAME}.app"
-
-CLI_EMULATOR_BASENAME=$(basename "$CLI_EMULATOR_PATH")
-CLI_PACKAGED_EMULATOR_PATH="Contents/MacOS/$CLI_EMULATOR_BASENAME"
-CLI_PACKAGED_ROMS_PATH="Contents/Resources/Roms"
-CLI_PACKAGED_CONFIG_PATH="Contents/Resources/Config"
-
 
 buildStandardBundle() {
 
   # Set up the basic bundle directory structure
+  CLI_RUN_SCRIPT_PATH="$APP_DIR/Contents/MacOS/run"
+  CLI_PACKAGED_ROMS_PATH="Contents/Resources/Roms"
+  CLI_PACKAGED_CONFIG_PATH="Contents/Resources/Config"
   mkdir -p "$APP_DIR/Contents/MacOS"
   mkdir -p "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
   mkdir -p "$APP_DIR/$CLI_PACKAGED_CONFIG_PATH"
@@ -131,14 +205,43 @@ EOF
     fi
   fi
 
-  # Copy the emulator
-  cp -c -r "$CLI_EMULATOR_PATH" "$APP_DIR/$CLI_PACKAGED_EMULATOR_PATH"
+
+  # FIXME so this bit is better, but you've hosed the case for the UI drag-and-dropping
+  # the .app onto a text field.  Need to account for that here.
+
+  # Copy the emulator. But first check if the emulator binary is part of an app bundle
+  case "$CLI_EMULATOR_PATH" in
+    *".app/"*)
+      # If it is, copy the whole bundle - everything inside the .app.
+      CLI_EMULATOR_BUNDLE_PATH=$(echo "$CLI_EMULATOR_PATH" | sed 's/\(.*\.app\).*/\1/')
+      cp -c -r "$CLI_EMULATOR_BUNDLE_PATH" "$APP_DIR/Contents/MacOS/"
+      # Now we need the packaged emulator path to point to the binary inside
+      # the copied bundle - basically the .app and everything after it.
+      CLI_PACKAGED_EMULATOR_PATH="Contents/MacOS/$(echo "$CLI_EMULATOR_PATH" | sed -E 's|.*/([^/]*\.app/.*)|\1|')"
+      ;;
+    *)
+      # But if it's not part of an app bundle, just copy it from the path as-is
+      # and we'll execute that file directly.
+      CLI_PACKAGED_EMULATOR_PATH="Contents/MacOS/$(basename "$CLI_EMULATOR_PATH")"
+      cp -c -r "$CLI_EMULATOR_PATH" "$APP_DIR/$CLI_PACKAGED_EMULATOR_PATH"
+      ;;
+  esac
 
   # Copy the roms
   if [ -f "$CLI_ROMS" ]; then
-      cp -c "$CLI_ROMS" "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+    cp -c "$CLI_ROMS" "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
   elif [ -d "$CLI_ROMS" ]; then
-      cp -c -r "$CLI_ROMS"/* "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+    cp -c -r "$CLI_ROMS"/* "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+  fi
+
+  # find the launch rom
+  # shellcheck disable=SC2086 # because we want word splitting here
+  CLI_LAUNCH_ROM_PACKAGE_PATH="${CLI_PACKAGED_ROMS_PATH}/$(findLaunchRom $BP_MAIN_ROM_SEARCH_PATH)"
+
+
+  # Copy the emulator config settings
+  if [ -n "${CLI_CONFIG_SOURCE_DIR:-}" ]; then
+    cp -c -r "$CLI_CONFIG_SOURCE_DIR" "$APP_DIR/$CLI_PACKAGED_CONFIG_PATH"
   fi
 
   ls -laR "$APP_DIR"
