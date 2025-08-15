@@ -1,6 +1,6 @@
 # RetroAppMaker
 
-<img src="etc/icon.png" alt="RetroAppMaker" width="512">
+<img src="etc/icon.png" alt="RetroAppMaker" width="384">
 
 **RetroAppMaker** makes it easy to assemble standalone MacOS desktop 
 applications for running retro games. 
@@ -26,9 +26,11 @@ there is in the project before investing more time in it.*
 *If you think it's a useful idea, come to my [discord channel](https://discord.pcal.net) 
 and let me know!*
 
-### Why would I want to use this?
+---
 
-RetroAppMaker might be a good choice for you if:
+### Why would anyone want to use this?
+
+RetroAppMaker might be a good choice if:
 
 * **You really only care about playing a few games.**  If you just have a dozen or 
 so retro games that you care about playing regularly on your mac, you may 
@@ -54,7 +56,8 @@ for each game.  *Note that this is not possible with all emulators*.
 * You just think **having a bunch of Playstation discs in your MacOS Dock looks cool.**
 
 If none of these apply to you, there lots of other launchers out there that
-will probably work better for you.
+will probably work better for you, especially if you care about managing
+a lot of ROMs.
 
 ### Won't this use up extra disk space?
 

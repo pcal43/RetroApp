@@ -81,8 +81,8 @@ release: clean
         exit 1
     fi
 
-    DMG_PATH="{{build_dir}}/RetroAppMaker-$VERSION.dmg"
     RELEASE_VERSION=${VERSION%+prerelease}
+    DMG_PATH="{{build_dir}}/RetroAppMaker-$RELEASE_VERSION.dmg"
     echo "Creating release version: $RELEASE_VERSION"
     just dmg "$DMG_PATH" "$RELEASE_VERSION" || { echo "DMG build failed"; exit 1; }
 
