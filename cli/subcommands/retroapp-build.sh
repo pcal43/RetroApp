@@ -32,7 +32,7 @@ usage() {
     -i appIconPath       Path to an image file to use as an app icon.
                          Optional.  If omitted, a default icon will be used.
 
-    -c [settingsDir]     Enables bundling emulator config settings (e.g.,
+    -c [configDir]       Enables bundling emulator configuration (e.g.,
                          including BIOS files) into the launcher app.
 
                          If -c is set without a path, an educated guess will
@@ -41,7 +41,7 @@ usage() {
 
                          Optional.  Somewhat pointless unless -C is also set.
 
-    -C [settingsDir]     Enables unbundling of default emulator config
+    -C [configDir]       Enables unbundling of default emulator config
                          settings (e.g., BIOS files) when the app is run on a
                          new machine.  This step will be skipped if the targetPath
                          already exists on the machine (i.e., if the emulator
@@ -68,7 +68,7 @@ usage() {
 }
 
 exit_emulatorNotFound() {
-    echo "Error: could not find ${1:-} on your machine.  Please install it or specify its location manually."
+    echo "Error: could not find ${1:-} on your machine.  Please install it or specify its location manually." >&2
     exit 80
 }
 
@@ -81,6 +81,7 @@ while getopts "n:t:e:b:r:R:i:o:c:C:h" opt; do
     R) CLI_LAUNCH_ROM="$OPTARG"; ;;
     i) CLI_ICON_IMAGE="$OPTARG" ;;
     o) CLI_OUTPUT_DIR="$OPTARG" ;;
+    C) CLI_CONFIG_TARGET_DIR="$OPTARG" ;;
     c) if [ -n "$OPTARG" ] && [ "$(echo "$OPTARG" | cut -c1)" != "-" ]; then
            CLI_CONFIG_SOURCE_DIR="$OPTARG"
          else
@@ -100,7 +101,7 @@ if [ -z "${CLI_BLUEPRINT:-}" ]; then
   usage
 else
   if ! [ -d "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT" ]; then
-    echo "Invalid blueprint: $CLI_BLUEPRINT.  Valid values are $($RA_RETROAPP list-blueprints)"
+    echo "Invalid blueprint: $CLI_BLUEPRINT.  Valid values are $($RA_RETROAPP list-blueprints)" >&2
     usage
   fi
 fi
@@ -119,7 +120,7 @@ fi
 
 # If they specified and icon file, make sure the file exists.
 if [ -n "${CLI_ICON_IMAGE:-}" ] && [ ! -f "$CLI_ICON_IMAGE" ]; then
-  echo "No image file found at $CLI_ICON_IMAGE"
+  echo "No image file found at $CLI_ICON_IMAGE" >&2
   exit 1
 fi
 
@@ -138,38 +139,74 @@ if [ -z "${CLI_EMULATOR_PATH:-}" ]; then
   CLI_EMULATOR_PATH=$("$RA_RETROAPP" find-emulator "$CLI_BLUEPRINT")
 fi
 
+# Now validate the emulator they gave us
+if [ -d "${CLI_EMULATOR_PATH}" ]; then
+  # Directory case - must be an .app bundle with Info.plist
+  if ! case "${CLI_EMULATOR_PATH}" in *.app) true;; *) false;; esac; then
+    echo "Error: The emulator directory ${CLI_EMULATOR_PATH} is not an .app bundle." >&2
+    exit "$EXIT_BAD_EMULATOR"
+  fi
+  if [ ! -f "${CLI_EMULATOR_PATH}/Contents/Info.plist" ]; then
+    echo "Error: The emulator at ${CLI_EMULATOR_PATH} is not a valid .app bundle (missing Info.plist)." >&2
+    exit "$EXIT_BAD_EMULATOR"
+  fi
+elif [ -f "${CLI_EMULATOR_PATH}" ]; then
+  # File case - verify it's executable
+  if [ ! -x "${CLI_EMULATOR_PATH}" ]; then
+    echo "Error: The emulator at ${CLI_EMULATOR_PATH} is not executable." >&2
+    exit "$EXIT_BAD_EMULATOR"
+  fi
+else
+  echo "Error: The emulator path ${CLI_EMULATOR_PATH} doesn't exist." >&2
+  exit "$EXIT_EMULATOR_NOT_FOUND"
+fi
+
 # shellcheck disable=SC1090
 # load the BP_xxx metadata for the chosen blueprint
 . "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/blueprint-info.sh"
 
+
 if [ -n "${CLI_CONFIG_SOURCE_DIR+x}" ] && [ -z "$CLI_CONFIG_SOURCE_DIR" ]; then
   # if they specified -c without a path, use the blueprint default
-  CLI_CONFIG_SOURCE_DIR=$(eval echo "$BP_EMULATOR_SETTINGS_DIR")
+  CLI_CONFIG_SOURCE_DIR=$(eval echo "$BP_EMULATOR_CONFIG_DIR")
+fi
+
+if [ -n "${CLI_CONFIG_SOURCE_DIR:-}" ]; then
+  if [ ! -d "$CLI_CONFIG_SOURCE_DIR" ]; then
+    echo "Error: The config source directory ${CLI_CONFIG_SOURCE_DIR} doesn't exist." >&2
+    echo "Specify an existing directory or remove the -c option." >&2
+    exit "$EXIT_MISSING_DIRECTORY"
+  fi
+
+  # If the specified source dir (-c) but not target, go ahead and implicitly enable
+  # target to the blueprint default
+  if [ -z "${CLI_CONFIG_TARGET_DIR+x}" ]; then
+    CLI_CONFIG_TARGET_DIR=$(eval echo "$BP_EMULATOR_CONFIG_DIR")
+  fi
 fi
 
 
 
-TMP_DIR=$(mktemp -d -t retroapp-build)
-APP_DIR="$TMP_DIR/${CLI_APP_NAME}.app"
+BUNDLE_DIR="$(mktemp -d -t retroapp-build)/${CLI_APP_NAME}.app"
 
 buildStandardBundle() {
 
   # Set up the basic bundle directory structure
-  CLI_RUN_SCRIPT_PATH="$APP_DIR/Contents/MacOS/run"
-  CLI_PACKAGED_ROMS_PATH="Contents/Resources/Roms"
-  CLI_PACKAGED_CONFIG_PATH="Contents/Resources/Config"
-  mkdir -p "$APP_DIR/Contents/MacOS"
-  mkdir -p "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
-  mkdir -p "$APP_DIR/$CLI_PACKAGED_CONFIG_PATH"
+  CLI_LAUNCH_SCRIPT_PATH="$BUNDLE_DIR/Contents/MacOS/launch"
+  CLI_BUNDLED_ROMS_PATH="Contents/Resources/Roms"
+  CLI_BUNDLED_CONFIG_PATH="Contents/Resources/Config"
+  mkdir -p "$BUNDLE_DIR/Contents/MacOS"
+  mkdir -p "$BUNDLE_DIR/$CLI_BUNDLED_ROMS_PATH"
+  mkdir -p "$BUNDLE_DIR/$CLI_BUNDLED_CONFIG_PATH"
 
   # Write the plist file
-  cat <<EOF > "$APP_DIR/Contents/Info.plist"
+  cat <<EOF > "$BUNDLE_DIR/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
 		<key>CFBundleExecutable</key>
-		<string>run</string>
+		<string>launch</string>
 		<key>CFBundleIconFile</key>
 		<string>icon.icns</string>
 		<key>CFBundleInfoDictionaryVersion</key>
@@ -199,9 +236,9 @@ EOF
   # Generate an .icns file if an image was specified
   if [ -n "${CLI_ICON_IMAGE:-}" ]; then
     if [ "${CLI_ICON_IMAGE##*.}" = "icns" ]; then
-      cp "${CLI_ICON_IMAGE}" "$APP_DIR/Contents/Resources/icon.icns"
+      cp "${CLI_ICON_IMAGE}" "$BUNDLE_DIR/Contents/Resources/icon.icns"
     else
-      "$RA_RETROAPP" make-icon "${CLI_ICON_IMAGE}" "$APP_DIR/Contents/Resources/icon.icns"
+      "$RA_RETROAPP" make-icon "${CLI_ICON_IMAGE}" "$BUNDLE_DIR/Contents/Resources/icon.icns"
     fi
   fi
 
@@ -209,52 +246,87 @@ EOF
   # FIXME so this bit is better, but you've hosed the case for the UI drag-and-dropping
   # the .app onto a text field.  Need to account for that here.
 
-  # Copy the emulator. But first check if the emulator binary is part of an app bundle
-  case "$CLI_EMULATOR_PATH" in
-    *".app/"*)
-      # If it is, copy the whole bundle - everything inside the .app.
-      CLI_EMULATOR_BUNDLE_PATH=$(echo "$CLI_EMULATOR_PATH" | sed 's/\(.*\.app\).*/\1/')
-      cp -c -r "$CLI_EMULATOR_BUNDLE_PATH" "$APP_DIR/Contents/MacOS/"
-      # Now we need the packaged emulator path to point to the binary inside
-      # the copied bundle - basically the .app and everything after it.
-      CLI_PACKAGED_EMULATOR_PATH="Contents/MacOS/$(echo "$CLI_EMULATOR_PATH" | sed -E 's|.*/([^/]*\.app/.*)|\1|')"
-      ;;
-    *)
-      # But if it's not part of an app bundle, just copy it from the path as-is
-      # and we'll execute that file directly.
-      CLI_PACKAGED_EMULATOR_PATH="Contents/MacOS/$(basename "$CLI_EMULATOR_PATH")"
-      cp -c -r "$CLI_EMULATOR_PATH" "$APP_DIR/$CLI_PACKAGED_EMULATOR_PATH"
-      ;;
-  esac
+  # Copy the emulator and make note of the bundled_path
+  CLI_BUNDLED_EMULATOR_PATH="Contents/MacOS/$(basename "$CLI_EMULATOR_PATH")"
+  cp -c -r "$CLI_EMULATOR_PATH" "$BUNDLE_DIR/$CLI_BUNDLED_EMULATOR_PATH"
 
   # Copy the roms
   if [ -f "$CLI_ROMS" ]; then
-    cp -c "$CLI_ROMS" "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+    cp -c "$CLI_ROMS" "$BUNDLE_DIR/$CLI_BUNDLED_ROMS_PATH"
   elif [ -d "$CLI_ROMS" ]; then
-    cp -c -r "$CLI_ROMS"/* "$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+    cp -c -r "$CLI_ROMS"/* "$BUNDLE_DIR/$CLI_BUNDLED_ROMS_PATH"
   fi
 
   # find the launch rom
   # shellcheck disable=SC2086 # because we want word splitting here
-  CLI_LAUNCH_ROM_PACKAGE_PATH="${CLI_PACKAGED_ROMS_PATH}/$(findLaunchRom $BP_MAIN_ROM_SEARCH_PATH)"
+  CLI_BUNDLED_LAUNCH_ROM_PATH="${CLI_BUNDLED_ROMS_PATH}/$(findLaunchRom $BP_MAIN_ROM_SEARCH_PATH)"
 
 
-  # Copy the emulator config settings
+  #
+  # Copy the emulator config
+  #
   if [ -n "${CLI_CONFIG_SOURCE_DIR:-}" ]; then
-    cp -c -r "$CLI_CONFIG_SOURCE_DIR" "$APP_DIR/$CLI_PACKAGED_CONFIG_PATH"
+    cp -c -r "$CLI_CONFIG_SOURCE_DIR" "$BUNDLE_DIR/$CLI_BUNDLED_CONFIG_PATH"
   fi
 
-  ls -laR "$APP_DIR"
+  #
+  # Generate the launch script
+  #
+  if [ -d "$BUNDLE_DIR/$CLI_BUNDLED_EMULATOR_PATH" ]; then
+    CLI_LAUNCH_COMMAND="open \"\$BUNDLE_DIR/${CLI_BUNDLED_EMULATOR_PATH}\" --args ${BP_LAUNCH_OPTS:-} \"\$BUNDLE_DIR/${CLI_BUNDLED_LAUNCH_ROM_PATH}\""
+  elif [ -f "$BUNDLE_DIR/$CLI_BUNDLED_EMULATOR_PATH" ]; then
+    CLI_LAUNCH_COMMAND="\"\$BUNDLE_DIR/${CLI_BUNDLED_EMULATOR_PATH}\" ${BP_LAUNCH_OPTS:-} \"\$BUNDLE_DIR/${CLI_BUNDLED_LAUNCH_ROM_PATH}\""
+  else
+    echo "Unexpected error: $CLI_BUNDLED_EMULATOR_PATH does not exist" >&2
+    exit "$EXIT_UNKNOWN"
+  fi
+
+  cat <<EOF > "$CLI_LAUNCH_SCRIPT_PATH"
+#!/bin/sh
+set -x
+BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
+EOF
+
+  #
+  # If they asked for config set up, generate a block that copies it.
+  #
+  if [ -n "${CLI_CONFIG_TARGET_DIR:-}" ]; then
+    # Get the current home directory with any trailing slash removed
+    CURRENT_HOME=$(echo "$HOME" | sed 's:/$::')
+    # Then replace the actual home directory path with $HOME
+    CLI_CONFIG_TARGET_DIR=$(echo "$CLI_CONFIG_TARGET_DIR" | sed "s:^$CURRENT_HOME:\$HOME:g")
+    cat <<EOF >> "$CLI_LAUNCH_SCRIPT_PATH"
+if ! [ -d "${CLI_CONFIG_TARGET_DIR}" ]; then
+    set +e
+    mkdir -p "${CLI_CONFIG_TARGET_DIR}"
+    cp -r "\${BUNDLE_DIR}/${CLI_BUNDLED_CONFIG_PATH}/"* "${CLI_CONFIG_TARGET_DIR}/"
+    set -e
+fi
+EOF
+  fi
+
+  #
+  # Finally, generate a line to launch the emulator
+  #
+  cat <<EOF >> "$CLI_LAUNCH_SCRIPT_PATH"
+$CLI_LAUNCH_COMMAND
+EOF
+
+
+
+  chmod +x "$CLI_LAUNCH_SCRIPT_PATH"
+
+  cat "$CLI_LAUNCH_SCRIPT_PATH"
 }
 
 findLaunchRom() {
-    if [ -n "${LAUNCH_ROM:-}" ]; then
-        printf "%s" "${LAUNCH_ROM}"
+    if [ -n "${CLI_LAUNCH_ROM:-}" ]; then
+        printf "%s" "${CLI_LAUNCH_ROM}"
         return 0
     fi
 
     # Use the ROM directory path directly
-    rom_dir="$APP_DIR/$CLI_PACKAGED_ROMS_PATH"
+    rom_dir="$BUNDLE_DIR/$CLI_BUNDLED_ROMS_PATH"
 
     # Process all arguments
     for cmd do
@@ -346,15 +418,15 @@ findLaunchRom() {
     exit "$EXIT_NEED_LAUNCH_ROM"
 }
 
-# Now run the blueprint build code to do emulator-specific stuff
-source "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/build.sh"
 
-# Make sure it's executable
-chmod +x "$APP_DIR/Contents/MacOS/run"
+buildStandardBundle
+
+# Now run the blueprint build code to do emulator-specific stuff
+#source "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/build.sh"
 
 # And give it to them.  We're done.
-mv "$APP_DIR" "$CLI_OUTPUT_DIR"
+mv "$BUNDLE_DIR" "$CLI_OUTPUT_DIR"
 
-
+#ls -laR "$CLI_OUTPUT_DIR"
 
 

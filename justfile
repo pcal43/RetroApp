@@ -11,7 +11,7 @@ build:
       --name RetroApp \
       --interface-type "None" \
       --interpreter "/bin/sh" \
-      --app-icon "{{platypus_dir}}/icon.icns" \
+      --app-icon "{{root_dir}}/AppIcon.icns" \
       --bundle-identifier "net.pcal.RetroApp" \
       --droppable \
       --bundled-file "{{ui_dir}}|{{cli_dir}}" \
@@ -28,7 +28,7 @@ clean:
 test-stella:
     mkdir -p {{build_dir}}
     rm -rf {{build_dir}}/Halo2600.app
-    {{cli_dir}}/retroapp build -n Halo2600 -b stella -c -r {{etc_dir}}/Halo2600.a26 -o {{build_dir}}
+    {{cli_dir}}/retroapp build -n Halo2600 -b stella -c "{{etc_dir}}/" -r "{{etc_dir}}/Halo2600.a26" -o "{{build_dir}}"
     open {{build_dir}}/Halo2600.app
 
 test-nestopia:
