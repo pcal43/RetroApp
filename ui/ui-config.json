@@ -1,15 +1,5 @@
 {
-  "title": "RetroApp",
   "message": "Do you want to store the current emulator configuration in the app?  If you do, your configuration will be portable if you ever run the app on a new machine.",
-  "moveable": true,
-  "resizable": true,
-  "id": "EMU",
-  "windowbuttons": ["close", "min", "max"],
-  "ontop": true,
-  "messageposition": "top",
-
-  "infobutton": true,
-  "infobuttontext" : "Quit",
 
   "checkbox": [
     {

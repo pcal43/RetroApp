@@ -2,7 +2,6 @@
 
 # platypus copies this file into Resources and names it 'script'
 
-
 export > $HOME/env-script.out
 
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

@@ -1,15 +1,5 @@
 {
-  "title": "RetroApp",
   "message": "Please provide a name and icon for your app.",
-  "moveable": true,
-  "resizable": true,
-  "id": "RetroApp",
-  "windowbuttons": ["close", "min", "max"],
-  "ontop": true,
-  "messageposition": "top",
-
-  "infobutton": true,
-  "infobuttontext" : "Quit",
 
   "textfield": [
     {

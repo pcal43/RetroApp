@@ -28,7 +28,7 @@ usage() {
 
 while getopts "hvx" opt; do
   case $opt in
-    v) echo "RetroApp 0.0.1" >&2 ;;
+    v) cat "${RA_SCRIPT_DIR}/version"; exit 0 ;;
     x) set -x ;;
     h) usage; exit 0 ;;
     *) usage; exit $EXIT_BAD_OPTION ;;

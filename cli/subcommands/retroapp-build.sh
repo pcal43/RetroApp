@@ -2,7 +2,7 @@
 
 #
 # Good source for images
-# https://gamesdb.launchbox-app.com/games/images/5167-ssx
+# https://gamesdb.launchbox-app.com/
 #
 
 usage() {
@@ -195,6 +195,7 @@ buildStandardBundle() {
   CLI_LAUNCH_SCRIPT_PATH="$BUNDLE_DIR/Contents/MacOS/launch"
   CLI_BUNDLED_ROMS_PATH="Contents/Resources/Roms"
   CLI_BUNDLED_CONFIG_PATH="Contents/Resources/Config"
+  CLI_BUNDLED_ICON_PATH="Contents/Resources/AppIcon.icns"
   mkdir -p "$BUNDLE_DIR/Contents/MacOS"
   mkdir -p "$BUNDLE_DIR/$CLI_BUNDLED_ROMS_PATH"
   mkdir -p "$BUNDLE_DIR/$CLI_BUNDLED_CONFIG_PATH"
@@ -208,7 +209,7 @@ buildStandardBundle() {
 		<key>CFBundleExecutable</key>
 		<string>launch</string>
 		<key>CFBundleIconFile</key>
-		<string>icon.icns</string>
+		<string>AppIcon.icns</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>1.0</string>
 		<key>CFBundlePackageType</key>
@@ -229,16 +230,16 @@ EOF
   if [ -z "${CLI_ICON_IMAGE:-}" ]; then
     CLI_ICON_IMAGE="$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/default-icon.png"
     if ! [ -f "${CLI_ICON_IMAGE:-}" ]; then
-      CLI_ICON_IMAGE="$RA_BLUEPRINTS_DIR/default-default-icon.png"
+      CLI_ICON_IMAGE="$RA_BLUEPRINTS_DIR/default-icon.png"
     fi
   fi
 
   # Generate an .icns file if an image was specified
   if [ -n "${CLI_ICON_IMAGE:-}" ]; then
     if [ "${CLI_ICON_IMAGE##*.}" = "icns" ]; then
-      cp "${CLI_ICON_IMAGE}" "$BUNDLE_DIR/Contents/Resources/icon.icns"
+      cp "$CLI_ICON_IMAGE" "$BUNDLE_DIR/$CLI_BUNDLED_ICON_PATH"
     else
-      "$RA_RETROAPP" make-icon "${CLI_ICON_IMAGE}" "$BUNDLE_DIR/Contents/Resources/icon.icns"
+      "$RA_RETROAPP" make-icon "$CLI_ICON_IMAGE" "$BUNDLE_DIR/$CLI_BUNDLED_ICON_PATH"
     fi
   fi
 
@@ -297,9 +298,12 @@ EOF
     CLI_CONFIG_TARGET_DIR=$(echo "$CLI_CONFIG_TARGET_DIR" | sed "s:^$CURRENT_HOME:\$HOME:g")
     cat <<EOF >> "$CLI_LAUNCH_SCRIPT_PATH"
 if ! [ -d "${CLI_CONFIG_TARGET_DIR}" ]; then
+    # If the emulator config directory doesn't exist - if we're running on a
+    # new machine, for example - copy our bundled config settings
+    # over so that the game is hopefully ready-to-play.
     set +e
     mkdir -p "${CLI_CONFIG_TARGET_DIR}"
-    cp -r "\${BUNDLE_DIR}/${CLI_BUNDLED_CONFIG_PATH}/"* "${CLI_CONFIG_TARGET_DIR}/"
+    cp -c -r "\${BUNDLE_DIR}/${CLI_BUNDLED_CONFIG_PATH}/"* "${CLI_CONFIG_TARGET_DIR}/"
     set -e
 fi
 EOF
@@ -312,8 +316,9 @@ EOF
 $CLI_LAUNCH_COMMAND
 EOF
 
-
-
+  #
+  # Mark the launcher executable and we're done.
+  #
   chmod +x "$CLI_LAUNCH_SCRIPT_PATH"
 
   cat "$CLI_LAUNCH_SCRIPT_PATH"

@@ -9,12 +9,17 @@ mkdir -p "$LOG_DIR"
 exec 2>&1 | tee "$LOG_DIR/ui.log"
 
 RA_SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-RA_SWIFT_DIALOG="$RA_SCRIPT_DIR/swiftDialog"
 RA_JQ="$RA_SCRIPT_DIR/jq"
 RA_RETROAPP="$RA_SCRIPT_DIR/../cli/retroapp"
 RA_ICON_FILE="$RA_SCRIPT_DIR/../AppIcon.icns"
+RA_TITLE="RetroAppMaker $(cat "${RA_SCRIPT_DIR}/version" 2>/dev/null || echo "?.?.?")"
 
-
+run_swift_dialog() {
+    "$RA_SCRIPT_DIR/swiftDialog" \
+      --title "$RA_TITLE" --icon "$RA_ICON_FILE" --moveable --resizable --ontop \
+      --infobutton --infobuttontext Quit --windowbuttons close,min,max -id RetroAppMaker --json \
+      "$@"
+}
 
 UI_ROM_PATH="${1:-}"
 if [ -n "${UI_ROM_PATH:-}" ]; then
@@ -34,7 +39,7 @@ DIALOG_JSON=$(sed \
   "$RA_SCRIPT_DIR/ui-rom.json" )
 echo "$DIALOG_JSON"
 DIALOG_JSON=$(echo "$DIALOG_JSON" | tr '\r\n' '  ')   # collapse it onto one line so we can pass it to --jsonstring
-DIALOG_OUTPUT=$("$RA_SWIFT_DIALOG" --icon "$RA_ICON_FILE" --json --vieworder "textfield,dropdown" --jsonstring "$DIALOG_JSON")
+DIALOG_OUTPUT=$(run_swift_dialog --vieworder "textfield,dropdown" --jsonstring "$DIALOG_JSON")
 echo "$DIALOG_OUTPUT"
 # This would be better with jq but I'm trying to avoid introducing the dependency.
 # Getting UI_EMULATOR here is especially fragile, since it's nested and only accidentlly unique.
@@ -67,7 +72,7 @@ DIALOG_JSON=$(sed \
   "$RA_SCRIPT_DIR/ui-emulator.json")
 echo "$DIALOG_JSON"
 DIALOG_JSON=$(echo "$DIALOG_JSON" | tr '\r\n' '  ')   # collapse it onto one line so we can pass it to --jsonstring
-DIALOG_OUTPUT=$("$RA_SWIFT_DIALOG" --icon "$RA_ICON_FILE" --json --jsonstring "$DIALOG_JSON")
+DIALOG_OUTPUT=$(run_swift_dialog --jsonstring "$DIALOG_JSON")
 echo "$DIALOG_OUTPUT"
 UI_EMULATOR_PATH=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."Emulator Path" // empty')
 
@@ -79,7 +84,7 @@ UI_EMULATOR_CONFIG_PATH="$BP_EMULATOR_CONFIG_DIR"
 DIALOG_JSON=$(sed \
   -e "s|\${UI_EMULATOR_CONFIG_PATH}|${UI_EMULATOR_CONFIG_PATH:-}|g" \
   "$RA_SCRIPT_DIR/ui-config.json" | tr '\r\n' '  ')
-DIALOG_OUTPUT=$("$RA_SWIFT_DIALOG" --icon "$RA_ICON_FILE" --json --jsonstring "$DIALOG_JSON")
+DIALOG_OUTPUT=$(run_swift_dialog --jsonstring "$DIALOG_JSON")
 echo "$DIALOG_OUTPUT"
 UI_EMULATOR_CONFIG_PATH=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."Config Path" // empty')
 UI_SAVE_CONFIG=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."Store emulator Config settings?" // false')
@@ -93,7 +98,7 @@ DIALOG_JSON=$(sed \
   -e "s|\${UI_APP_NAME}|${UI_APP_NAME:-MyApp}|g" \
   -e "s|\${UI_ICON_PATH}|${UI_ICON_PATH:-}|g" \
   "$RA_SCRIPT_DIR/ui-app.json" | tr '\r\n' '  ')
-DIALOG_OUTPUT=$("$RA_SWIFT_DIALOG" --icon "$RA_ICON_FILE" --json --jsonstring "$DIALOG_JSON")
+DIALOG_OUTPUT=$(run_swift_dialog --jsonstring "$DIALOG_JSON")
 UI_APP_NAME=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."App Name" // empty')
 UI_ICON_PATH=$(echo "$DIALOG_OUTPUT" | "$RA_JQ" -r '."App Icon" // empty')
 
