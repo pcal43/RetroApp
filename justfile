@@ -8,9 +8,12 @@ platypus_dir := root_dir + "/platypus"
 clean:
     rm -rf {{build_dir}}
 
-build:
+build version="":
     #!/usr/bin/env sh
-    VERSION=$(cat {{root_dir}}/version)
+    VERSION="{{version}}"
+    if [ -z "$VERSION" ]; then
+        VERSION=$(cat {{root_dir}}/version)
+    fi
     mkdir -p {{build_dir}}
     rm -f "{{build_dir}}/RetroAppMaker.app"
     platypus \
@@ -30,20 +33,18 @@ build:
     cp version "{{build_dir}}/RetroAppMaker.app/Contents/Resources/ui/"
     open {{build_dir}}
 
-
-foo wat:
-    wat :=
-
-dmg dmg_path="" version="": build
+dmg dmg_path="" version="":
         #!/usr/bin/env sh
-        mkdir -p {{build_dir}}/tmp_dmg
-        cp -R {{build_dir}}/RetroAppMaker.app {{build_dir}}/tmp_dmg/
-        ln -s /Applications {{build_dir}}/tmp_dmg/
-
         VERSION="{{version}}"
         if [ -z "$VERSION" ]; then
             VERSION=$(cat {{root_dir}}/version)
         fi
+        just build $VERSION
+
+        mkdir -p {{build_dir}}/tmp_dmg
+        cp -R {{build_dir}}/RetroAppMaker.app {{build_dir}}/tmp_dmg/
+        ln -s /Applications {{build_dir}}/tmp_dmg/
+
 
         DMG_PATH="{{dmg_path}}"
         if [ -z "$DMG_PATH" ]; then
@@ -89,7 +90,7 @@ release: clean
     echo "$RELEASE_VERSION" > {{root_dir}}/version
 
     git add {{root_dir}}/version
-    git commit -m "Release $RELEASE_VERSION"
+    git commit -m "*** Release $RELEASE_VERSION ***"
 
     MAJOR=$(echo $RELEASE_VERSION | cut -d. -f1)
     MINOR=$(echo $RELEASE_VERSION | cut -d. -f2)
@@ -99,7 +100,7 @@ release: clean
 
     echo "$NEXT_VERSION" > {{root_dir}}/version
     git add {{root_dir}}/version
-    git commit -m "Prepare for release $MAJOR.$MINOR.$NEXT_PATCH"
+    git commit -m "Prepare for next version $MAJOR.$MINOR.$NEXT_PATCH"
 
     set -x
     gh release create --generate-notes --title "$RELEASE_VERSION" --notes "release $RELEASE_VERSION" "$RELEASE_VERSION" "$DMG_PATH"
