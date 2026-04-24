@@ -8,7 +8,7 @@
 
 # Check arguments
 if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 input_image output.icns" >&2
+  echo "Usage: $0 PNG_FILE output.icns" >&2
   exit 1
 fi
 

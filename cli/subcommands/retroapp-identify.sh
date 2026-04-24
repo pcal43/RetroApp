@@ -2,15 +2,15 @@
 
 usage() {
   cat >&2 <<'EOF'
-Usage: retroapp identify-binary [-h] BINARY_PATH
+Usage: retroapp identify [-h] BINARY_PATH
 
   Attempts to identify the binary file at the given path.  It does this by
   running crc32 on the file and then searching for that crc in the .dat
   files in cli/hashes directory
 
-  If it finds a match, it outputs the emulator code (which is the enclosing directory
-  of the .dat file in which the hash was found) followed by the name of the game
-  from the dat file.
+  If it finds a match, it outputs the name of the .dat file in which the hash
+  was found (without the .dat extension), followed by a newline and the name of
+  the game from the dat file.
 
   If it could not be found, exits with -1.
 EOF
@@ -44,7 +44,7 @@ search_crc() {
   for _dat_file in "$RA_HASHES_DIR"/*/*.dat; do
     [ -f "$_dat_file" ] || continue
     if grep -q "crc $_crc" "$_dat_file"; then
-      _found_emulator=$(basename "$(dirname "$_dat_file")")
+      _found_dat=$(basename "$_dat_file" .dat)
       _found_game=$(awk -v crc="$_crc" '
         /^\tname "/ {
           match($0, /"[^"]*"/)
@@ -55,7 +55,7 @@ search_crc() {
           exit
         }
       ' "$_dat_file")
-      printf '%s %s\n' "$_found_emulator" "$_found_game"
+      printf '%s\n%s\n' "$_found_dat" "$_found_game"
       return 0
     fi
   done
