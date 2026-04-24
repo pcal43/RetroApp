@@ -1,15 +1,20 @@
 #!/bin/sh
 set -x
-BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
-SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/stella/Halo2600"
-if ! [ -d "$SANDBOX_DIR" ]; then
-    # If the emulator config directory doesn't exist - if we're running on a
-    # new machine, for example - copy our bundled config settings
-    # over so that the game is hopefully ready-to-play.
+BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
+
+# Stella has a basedir option but it doesn't work on MacOS.  So we force sandboxing of
+# its configuration by manipulating $HOME.
+HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/Stella/$RETROAPP_GAME_NAME"
+
+# This is the subdir where Stella will actually do its thing.
+STELLA_SANDBOX_DIR="\$/Library/Application Support/Stella"
+
+if ! [ -d "$STELLA_SANDBOX_DIR" ]; then
+    # If the sanboxed config dir doesn't exist, assume this is first launch
+    # and we should copy our bundled config into it.
     set +e
-    mkdir -p "${SANDBOX_DIR}/Library/Application Support/Stella"
-    cp -c -r "${BUNDLE_DIR}/Contents/Resources/Config/"* "${SANDBOX_DIR}"
+    mkdir -p "\${STELLA_SANDBOX_DIR}"
+    cp -c -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${STELLA_SANDBOX_DIR}"
     set -e
 fi
-HOME="${SANDBOX_DIR}" open "$BUNDLE_DIR/Contents/MacOS/Stella.app" --args -nogui -fastboot -fullscreen -batch "$BUNDLE_DIR/Contents/Resources/Roms/Halo2600.a26"
-#HOME="${SANDBOX_DIR}" "$BUNDLE_DIR/Contents/MacOS/Stella.app/Contents/MacOS/Stella" -basedir "${SANDBOX_DIR}" --args -nogui -fastboot -fullscreen -batch "$BUNDLE_DIR/Contents/Resources/Roms/Halo2600.a26"
+HOME="\${HOME_SANDBOX_DIR}" open "\${BUNDLE_DIR}/Contents/MacOS/Stella.app" --args -nogui -fastboot -fullscreen -batch "\${BUNDLE_DIR}/Contents/Resources/$RETROAPP_ROM_NAME"
