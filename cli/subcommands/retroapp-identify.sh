@@ -37,6 +37,34 @@ if [ ! -f "$CLI_BINARY_PATH" ]; then
   exit 1
 fi
 
+# Search all .dat files under the hashes directory for a given CRC.
+# Prints "emulator game_name" and returns 0 on match; returns 1 otherwise.
+search_crc() {
+  _crc="$1"
+  for _dat_file in "$RA_HASHES_DIR"/*/*.dat; do
+    [ -f "$_dat_file" ] || continue
+    if grep -q "crc $_crc" "$_dat_file"; then
+      _found_emulator=$(basename "$(dirname "$_dat_file")")
+      _found_game=$(awk -v crc="$_crc" '
+        /^\tname "/ {
+          match($0, /"[^"]*"/)
+          game_name = substr($0, RSTART + 1, RLENGTH - 2)
+        }
+        index($0, "crc " crc) > 0 {
+          print game_name
+          exit
+        }
+      ' "$_dat_file")
+      printf '%s %s\n' "$_found_emulator" "$_found_game"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Search all .dat files under the hashes directory
+RA_HASHES_DIR="$RA_SCRIPT_DIR/hashes"
+
 # Compute CRC32 as uppercase 8-character hex (matches .dat file format)
 CLI_CRC=$(python3 -c "
 import sys, binascii
@@ -44,34 +72,27 @@ data = open(sys.argv[1], 'rb').read()
 print(format(binascii.crc32(data) & 0xffffffff, '08X'))
 " "$CLI_BINARY_PATH")
 
-# Search all .dat files under the hashes directory
-RA_HASHES_DIR="$RA_SCRIPT_DIR/hashes"
+# First pass: hash the full file
+if search_crc "$CLI_CRC"; then
+  exit 0
+fi
 
-for dat_file in "$RA_HASHES_DIR"/*/*.dat; do
-  [ -f "$dat_file" ] || continue
+# Second pass: if the file has an iNES header (4e 45 53 1a), rehash without it
+INES_MAGIC=$(python3 -c "
+import sys
+print(open(sys.argv[1], 'rb').read(4).hex().upper())
+" "$CLI_BINARY_PATH")
 
-  # Quick check before expensive awk pass
-  if grep -q "crc $CLI_CRC" "$dat_file"; then
-    # Extract emulator code from the containing directory name
-    found_emulator=$(basename "$(dirname "$dat_file")")
-
-    # Single-pass awk: track the most-recent game-level name line (^\tname "..."),
-    # print it when we hit the rom line containing our CRC, then exit.
-    found_game=$(awk -v crc="$CLI_CRC" '
-      /^\tname "/ {
-        match($0, /"[^"]*"/)
-        game_name = substr($0, RSTART + 1, RLENGTH - 2)
-      }
-      index($0, "crc " crc) > 0 {
-        print game_name
-        exit
-      }
-    ' "$dat_file")
-
-    printf '%s %s\n' "$found_emulator" "$found_game"
+if [ "$INES_MAGIC" = "4E45531A" ]; then
+  CLI_CRC_HEADLESS=$(python3 -c "
+import sys, binascii
+data = open(sys.argv[1], 'rb').read()[16:]
+print(format(binascii.crc32(data) & 0xffffffff, '08X'))
+" "$CLI_BINARY_PATH")
+  if search_crc "$CLI_CRC_HEADLESS"; then
     exit 0
   fi
-done
+fi
 
 exit 1
 
