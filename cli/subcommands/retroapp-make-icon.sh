@@ -1,14 +1,8 @@
 #!/bin/sh
 
-#
-# Good source for images
-# https://gamesdb.launchbox-app.com/games/images/5167-ssx
-#
 
-
-# Check arguments
 if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 PNG_FILE output.icns" >&2
+  echo "Usage: $0 INPUT_PNG_FILE OUTPUT_ICNS_FILE" >&2
   exit 1
 fi
 
