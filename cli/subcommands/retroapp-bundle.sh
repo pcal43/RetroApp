@@ -155,6 +155,15 @@ done
 
 rm -f "$RA_PROCESSOR"
 
+# If the emulator's support directory exists on this machine, seed the bundle's
+# Config/ from it so saved settings are bundled with the game.
+RA_EMU_CONFIG_SRC="$HOME/Library/$EMU_SUPPORT_PATH"
+if [ -d "$RA_EMU_CONFIG_SRC" ]; then
+  mkdir -p "$RA_BUNDLE_DIR/Contents/Resources/Config"
+  cp -r "$RA_EMU_CONFIG_SRC/." "$RA_BUNDLE_DIR/Contents/Resources/Config/"
+fi
+
+
 # Ensure the launch script is executable
 chmod +x "$RA_BUNDLE_DIR/Contents/MacOS/launch"
 
