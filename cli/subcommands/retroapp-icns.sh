@@ -28,36 +28,40 @@ fi
 # Sizes needed for macOS iconset
 SIZES=(16 32 64 128 256 512 1024)
 
-# Crop input to centered square if needed
+
+# Get input image dimensions
 WIDTH=$(sips -g pixelWidth "$INPUT" | awk '/pixelWidth:/ {print $2}')
 HEIGHT=$(sips -g pixelHeight "$INPUT" | awk '/pixelHeight:/ {print $2}')
 
-if [ "$WIDTH" -ne "$HEIGHT" ]; then
-  # Find crop size and offsets
-  if [ "$WIDTH" -gt "$HEIGHT" ]; then
-    CROP_SIZE="$HEIGHT"
-    CROP_X=$(( (WIDTH - HEIGHT) / 2 ))
-    CROP_Y=0
-  else
-    CROP_SIZE="$WIDTH"
-    CROP_X=0
-    CROP_Y=$(( (HEIGHT - WIDTH) / 2 ))
-  fi
-  CROP_INPUT="$TMP_DIR/cropped.png"
-  sips -c "$CROP_SIZE" "$CROP_SIZE" "$INPUT" --out "$CROP_INPUT" >/dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    echo "Error cropping image to square" >&2
-    exit 1
-  fi
-else
-  CROP_INPUT="$INPUT"
-fi
-
 for size in $SIZES; do
-  sips -s format png -z "$size" "$size" "$CROP_INPUT" --out "$TMP_ICONSET/icon_${size}x${size}.png" >/dev/null 2>&1
+  # Calculate target dimensions to preserve aspect ratio
+  if [ "$WIDTH" -gt "$HEIGHT" ]; then
+    TARGET_W="$size"
+    TARGET_H=$(( size * HEIGHT / WIDTH ))
+  elif [ "$HEIGHT" -gt "$WIDTH" ]; then
+    TARGET_H="$size"
+    TARGET_W=$(( size * WIDTH / HEIGHT ))
+  else
+    TARGET_W="$size"
+    TARGET_H="$size"
+  fi
+  RESIZED_PNG="$TMP_DIR/resized_${size}.png"
+  FINAL_PNG="$TMP_ICONSET/icon_${size}x${size}.png"
+  sips -s format png -z "$TARGET_H" "$TARGET_W" "$INPUT" --out "$RESIZED_PNG" >/dev/null 2>&1
   if [ $? -ne 0 ]; then
-    echo "Error resizing image to ${size}x${size}" >&2
+    echo "Error resizing image to ${TARGET_W}x${TARGET_H}" >&2
     exit 1
+  fi
+  # If not square, pad to square using ImageMagick convert (if available)
+  if [ "$TARGET_W" -ne "$size" ] || [ "$TARGET_H" -ne "$size" ]; then
+    if command -v convert >/dev/null 2>&1; then
+      convert "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
+    else
+      echo "WARNING: ImageMagick 'convert' not found, icon will not be square for size $size" >&2
+      mv "$RESIZED_PNG" "$FINAL_PNG"
+    fi
+  else
+    mv "$RESIZED_PNG" "$FINAL_PNG"
   fi
 done
 
