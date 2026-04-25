@@ -114,7 +114,7 @@ export RETROAPP_APP_NAME="$RA_APP_NAME"
 export RETROAPP_GAME_NAME="$RA_APP_NAME"
 export RETROAPP_ROM_NAME="$RA_ROM_BASENAME"
 export RETROAPP_EMULATOR_ID="$RA_EMULATOR_ID"
-export EMU_SUPPORT_PATH EMU_APP_PATH EMU_OPTIONS
+export EMU_SUPPORT_PATH EMU_APP_PATH EMU_RUN_COMMAND EMU_DEPLOY_CONFIG_COMMAND
 
 # Create staging area and copy the shared bundle template into it
 RA_STAGING_DIR=$(mktemp -d -t retroapp-bundle)
@@ -154,14 +154,20 @@ find "$RA_BUNDLE_DIR" -name "*.template" | while IFS= read -r template_file; do
   rm "$template_file"
 done
 
+
 rm -f "$RA_PROCESSOR"
 
-# If the emulator's support directory exists on this machine, seed the bundle's
-# Config/ from it so saved settings are bundled with the game.
-RA_EMU_CONFIG_SRC="$HOME/Library/$EMU_SUPPORT_PATH"
-if [ -d "$RA_EMU_CONFIG_SRC" ]; then
-  mkdir -p "$RA_BUNDLE_DIR/Contents/Resources/Config"
-  cp -r "$RA_EMU_CONFIG_SRC/." "$RA_BUNDLE_DIR/Contents/Resources/Config/"
+# Embed the emulator config into the bundle.
+if [ -n "${EMU_EMBED_CONFIG_COMMAND:-}" ]; then
+  export BUILD_BUNDLE_DIR="$RA_BUNDLE_DIR"
+  eval "$EMU_EMBED_CONFIG_COMMAND"
+else
+  # Default: copy $HOME/Library/$EMU_SUPPORT_PATH into the bundle if it exists.
+  RA_EMU_CONFIG_SRC="$HOME/Library/$EMU_SUPPORT_PATH"
+  if [ -d "$RA_EMU_CONFIG_SRC" ]; then
+    mkdir -p "$RA_BUNDLE_DIR/Contents/Resources/Config"
+    cp -r "$RA_EMU_CONFIG_SRC/." "$RA_BUNDLE_DIR/Contents/Resources/Config/"
+  fi
 fi
 
 

@@ -6,7 +6,7 @@ RUN_BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/$RETROAPP_EMULATOR_ID/$RETROAPP_GAME_NAME"
 
 # The subdir where the emulator will read/write its config.
-RUN_SANDBOX_DIR="\$RUN_HOME_SANDBOX_DIR/Library/$EMU_SUPPORT_PATH"
+RUN_SANDBOXED_CONFIG_DIR="\$RUN_HOME_SANDBOX_DIR/Library/$EMU_SUPPORT_PATH"
 
 RUN_ROM_PATH="\${RUN_BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
 
@@ -23,20 +23,13 @@ else
   exit 1
 fi
 
-if ! [ -d "\$RUN_SANDBOX_DIR" ]; then
-  # First launch: seed the sandboxed config dir from the bundled Config/.
+if ! [ -d "\$RUN_SANDBOXED_CONFIG_DIR" ]; then
+  # First launch: deploy bundled config into the per-game sandbox.
   set +e
-  mkdir -p "\${RUN_SANDBOX_DIR}"
-  cp -r "\${RUN_BUNDLE_DIR}/Contents/Resources/Config/"* "\${RUN_SANDBOX_DIR}"
+  mkdir -p "\${RUN_SANDBOXED_CONFIG_DIR}"
+  $EMU_DEPLOY_CONFIG_COMMAND
   set -e
 fi
 
-# Launch: use 'open' for .app bundles, direct exec for plain binaries.
-case "\$RUN_EMU_PATH" in
-  *.app)
-    HOME="\${RUN_HOME_SANDBOX_DIR}" open "\${RUN_EMU_PATH}" --args $EMU_OPTIONS "\${RUN_ROM_PATH}"
-    ;;
-  *)
-    HOME="\${RUN_HOME_SANDBOX_DIR}" "\${RUN_EMU_PATH}" $EMU_OPTIONS "\${RUN_ROM_PATH}"
-    ;;
-esac
+# Launch the emulator.
+$EMU_RUN_COMMAND

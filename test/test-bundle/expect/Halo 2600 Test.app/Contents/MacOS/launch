@@ -1,42 +1,35 @@
 #!/bin/sh
 set -x
-BUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
+RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 
 # HOME is sandboxed so the emulator stores its config per-game under RetroApp/
-BUN_HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/stella/Halo 2600 Test"
+RUN_HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/stella/Halo 2600 Test"
 
 # The subdir where the emulator will read/write its config.
-BUN_SANDBOX_DIR="$BUN_HOME_SANDBOX_DIR/Library/Application Support/Stella"
+RUN_SANDBOXED_CONFIG_DIR="$RUN_HOME_SANDBOX_DIR/Library/Application Support/Stella"
 
-BUN_ROM_PATH="${BUN_BUNDLE_DIR}/Contents/Resources/Roms/Halo2600.a26"
+RUN_ROM_PATH="${RUN_BUNDLE_DIR}/Contents/Resources/Roms/Halo2600.a26"
 
 
 # Find the emulator: prefer a bundled .app in Contents/Resources/Emulator/,
 # then fall back to EMU_APP_PATH.
-BUN_EMU_BUNDLED="${BUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
-if [ -e "$BUN_EMU_BUNDLED" ]; then
-  BUN_EMU_PATH="$BUN_EMU_BUNDLED"
+RUN_EMU_BUNDLED="${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
+if [ -e "$RUN_EMU_BUNDLED" ]; then
+  RUN_EMU_PATH="$RUN_EMU_BUNDLED"
 elif [ -e "/Applications/Stella.app" ]; then
-  BUN_EMU_PATH="/Applications/Stella.app"
+  RUN_EMU_PATH="/Applications/Stella.app"
 else
   echo "Error: could not find emulator" >&2
   exit 1
 fi
 
-if ! [ -d "$BUN_SANDBOX_DIR" ]; then
-  # First launch: seed the sandboxed config dir from the bundled Config/.
+if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR" ]; then
+  # First launch: deploy bundled config into the per-game sandbox.
   set +e
-  mkdir -p "${BUN_SANDBOX_DIR}"
-  cp -r "${BUN_BUNDLE_DIR}/Contents/Resources/Config/"* "${BUN_SANDBOX_DIR}"
+  mkdir -p "${RUN_SANDBOXED_CONFIG_DIR}"
+  cp -r "$RUN_BUNDLE_DIR/Contents/Resources/Config/." "$RUN_SANDBOXED_CONFIG_DIR/"
   set -e
 fi
 
-# Launch: use 'open' for .app bundles, direct exec for plain binaries.
-case "$BUN_EMU_PATH" in
-  *.app)
-    HOME="${BUN_HOME_SANDBOX_DIR}" open "${BUN_EMU_PATH}" --args -fullscreen 1 "${BUN_ROM_PATH}"
-    ;;
-  *)
-    HOME="${BUN_HOME_SANDBOX_DIR}" "${BUN_EMU_PATH}" -fullscreen 1 "${BUN_ROM_PATH}"
-    ;;
-esac
+# Launch the emulator.
+HOME="${RUN_HOME_SANDBOX_DIR}" open "${RUN_EMU_PATH}" --args -fullscreen 1 "${RUN_ROM_PATH}"
