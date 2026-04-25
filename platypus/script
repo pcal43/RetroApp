@@ -2,8 +2,6 @@
 
 # platypus copies this file into Resources and names it 'script'
 
-/usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
-
 echo "Running RetroAppMaker!"
 
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
