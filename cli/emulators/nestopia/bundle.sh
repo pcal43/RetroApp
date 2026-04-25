@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 
 #
 # Builds a MacOS bundle to launch a game with Nestopia.

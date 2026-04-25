@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 
 usage() {
   cat >&2 <<'EOF'
