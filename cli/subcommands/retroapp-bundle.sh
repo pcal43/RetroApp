@@ -54,6 +54,11 @@ for an example of the kind of template we will be processing.
   exit 1
 }
 
+bundleError() {
+  osascript -e "display alert \"RetroApp Bundle Error\" message \"$1\" as critical buttons {\"OK\"} default button \"OK\""
+  echo "Error: $1" >&2
+}
+
 while getopts "n:e:r:i:o:h" opt; do
   case $opt in
     n) RA_APP_NAME="$OPTARG" ;;
@@ -137,6 +142,8 @@ if [ ! -f "$RA_EMU_BUNDLE_SH" ]; then
 fi
 BUILD_BUNDLE_DIR="$RA_BUNDLE_DIR"
 BUILD_ROM_PATH="$RA_ROM_PATH"
+BUILD_BUNDLED_CONFIG_ENABLED="${BUILD_BUNDLED_CONFIG_ENABLED:-true}"
+BUILD_BUNDLED_EMULATOR_ENABLED="${BUILD_BUNDLED_EMULATOR_ENABLED:-true}"
 # shellcheck disable=SC1090
 . "$RA_EMU_BUNDLE_SH"
 
