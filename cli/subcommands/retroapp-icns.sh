@@ -44,7 +44,7 @@ if [ "$WIDTH" -ne "$HEIGHT" ]; then
     CROP_Y=$(( (HEIGHT - WIDTH) / 2 ))
   fi
   CROP_INPUT="$TMP_DIR/cropped.png"
-  sips -c "$CROP_SIZE" "$CROP_SIZE" --cropOffset "$CROP_X" "$CROP_Y" "$INPUT" --out "$CROP_INPUT" >/dev/null 2>&1
+  sips -c "$CROP_SIZE" "$CROP_SIZE" "$INPUT" --out "$CROP_INPUT" >/dev/null 2>&1
   if [ $? -ne 0 ]; then
     echo "Error cropping image to square" >&2
     exit 1
