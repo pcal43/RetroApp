@@ -24,6 +24,7 @@ build version="":
       --app-icon "{{root_dir}}/AppIcon.icns" \
       --bundle-identifier "net.pcal.RetroAppMaker" \
       --droppable \
+      --uniform-type-identifiers 'public.item|public.folder' \
       --bundled-file "{{ui_dir}}|{{cli_dir}}|{{root_dir}}/version" \
       --overwrite \
       "{{platypus_dir}}/script" \
