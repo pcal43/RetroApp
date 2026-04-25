@@ -2,10 +2,10 @@
 set -x
 RUN_BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/PCSX2/$BUILD_GAME_NAME"
-RUN_SANDBOXED_CONFIG_DIR="\$RUN_HOME_SANDBOX_DIR/Library/Application\ Support/PCSX2"
-RUN_ROM_PATH="\${RUN_BUNDLE_DIR}/Contents/Resources/Roms/$BUILD_ROM_NAME"
+RUN_SANDBOXED_CONFIG_DIR="\$RUN_HOME_SANDBOX_DIR/Library/Application Support/PCSX2"
+RUN_ROM_PATH="\$RUN_BUNDLE_DIR/Contents/Resources/Roms/$BUILD_ROM_NAME"
 
-RUN_EMU_BUNDLED="\${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
+RUN_EMU_BUNDLED="\$RUN_BUNDLE_DIR/Contents/Resources/Emulator/"*.app
 if [ -e "\$RUN_EMU_BUNDLED" ]; then
   RUN_EMU_PATH="\$RUN_EMU_BUNDLED"
 elif RUN_EMU_PATH=\$(find /Applications -maxdepth 1 -name 'PCSX2*.app' -type d 2>/dev/null | sort | tail -1) && [ -n "\$RUN_EMU_PATH" ]; then
@@ -15,11 +15,11 @@ else
   exit 1
 fi
 
-if ! [ -d "\${RUN_SANDBOXED_CONFIG_DIR}" ]; then
+if ! [ -d "\$RUN_SANDBOXED_CONFIG_DIR" ]; then
   set +e
-  mkdir -p "\${RUN_SANDBOXED_CONFIG_DIR}"
-  cp -r "\${RUN_BUNDLE_DIR}/Contents/Resources/Config/." "\${RUN_SANDBOXED_CONFIG_DIR}/"
+  mkdir -p "\$RUN_SANDBOXED_CONFIG_DIR"
+  cp -r "\$RUN_BUNDLE_DIR/Contents/Resources/Config/." "\$RUN_SANDBOXED_CONFIG_DIR"
   set -e
 fi
 
-HOME="\${RUN_HOME_SANDBOX_DIR}" open "\${RUN_EMU_PATH}" --args -nogui -fastboot -fullscreen -batch "\${RUN_ROM_PATH}"
+HOME="\$RUN_HOME_SANDBOX_DIR" open "\$RUN_EMU_PATH" --args -nogui -fastboot -fullscreen -batch "\$RUN_ROM_PATH"
