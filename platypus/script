@@ -4,26 +4,7 @@
 
 /usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
 
- 
-show_error() {
-  local text="${1:-An unknown error occurred.}"
-
-  /usr/bin/osascript <<EOF
-display dialog ${(qqq)text} ¬
-  with title "RetroApp Error" ¬
-  buttons {"OK"} ¬
-  default button "OK" ¬
-  with icon stop
-EOF
-}
-
-/usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
-
-show_error "hey there!"
-
-print "OK!" > "/tmp/raoutput.txt"
-
-print "OK!" > "$HOME/raoutput.txt"
+echo "Running RetroAppMaker!"
 
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
