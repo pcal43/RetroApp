@@ -48,8 +48,92 @@ which is exactly what we need to run retroapp-bundle.  Go ahead and run it.
 
 
 
-
 EOF
   exit 1
 }
 
+while getopts "h" opt; do
+  case $opt in
+    h) usage ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ -z "${1:-}" ]; then
+  usage
+fi
+
+DRAG_ROM_PATH=""
+DRAG_ROM_SYSTEM=""
+DRAG_GAME_NAME=""
+DRAG_ICON_PNG=""
+
+# Iterate through all arguments, identify each file
+for DRAG_FILE in "$@"; do
+  if [ ! -f "$DRAG_FILE" ]; then
+    echo "Warning: file not found, skipping: $DRAG_FILE" >&2
+    continue
+  fi
+
+  DRAG_IDENTIFY=$("$RA_RETROAPP" identify "$DRAG_FILE" 2>/dev/null) || true
+  DRAG_TYPE=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '1p')
+
+  case "$DRAG_TYPE" in
+    png)
+      if [ -n "$DRAG_ICON_PNG" ]; then
+        echo "Warning: multiple PNG files provided; ignoring $DRAG_FILE" >&2
+      else
+        DRAG_ICON_PNG="$DRAG_FILE"
+      fi
+      ;;
+    rom)
+      if [ -n "$DRAG_ROM_PATH" ]; then
+        echo "Warning: multiple ROM files provided; ignoring $DRAG_FILE" >&2
+      else
+        DRAG_ROM_PATH="$DRAG_FILE"
+        DRAG_ROM_SYSTEM=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '2p')
+        DRAG_GAME_NAME=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '3p')
+      fi
+      ;;
+    *)
+      echo "Warning: could not identify file, skipping: $DRAG_FILE" >&2
+      ;;
+  esac
+done
+
+# Require a ROM
+if [ -z "$DRAG_ROM_PATH" ]; then
+  echo "Error: no ROM file could be identified among the provided files." >&2
+  exit 1
+fi
+
+# Look up emulator id from cli/emulators/<system name>
+DRAG_EMU_FILE="$RA_SCRIPT_DIR/emulators/${DRAG_ROM_SYSTEM}"
+if [ ! -f "$DRAG_EMU_FILE" ]; then
+  echo "Error: emulator not supported for system '$DRAG_ROM_SYSTEM'" >&2
+  exit 1
+fi
+# The file may contain just an id ("nestopia") or a path ("stella/Stella-6.0.app");
+# extract just the first path component as the emulator id.
+DRAG_EMULATOR_ID=$(tr -d '[:space:]' < "$DRAG_EMU_FILE" | cut -d'/' -f1)
+
+# Get an icon PNG if none was provided
+if [ -z "$DRAG_ICON_PNG" ]; then
+  DRAG_ICON_PNG=$("$RA_RETROAPP" icon-png "$DRAG_ROM_SYSTEM" "$DRAG_GAME_NAME") || true
+fi
+
+# Convert PNG to .icns
+DRAG_ICNS=$(mktemp /tmp/retroapp-icon-XXXXXX)
+mv "$DRAG_ICNS" "${DRAG_ICNS}.icns"
+DRAG_ICNS="${DRAG_ICNS}.icns"
+"$RA_RETROAPP" make-icon "$DRAG_ICON_PNG" "$DRAG_ICNS"
+
+# Build the bundle
+"$RA_RETROAPP" bundle \
+  -n "$DRAG_GAME_NAME" \
+  -e "$DRAG_EMULATOR_ID" \
+  -r "$DRAG_ROM_PATH" \
+  -i "$DRAG_ICNS"
+
+rm -f "$DRAG_ICNS"
