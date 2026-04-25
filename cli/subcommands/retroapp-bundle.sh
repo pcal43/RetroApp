@@ -129,9 +129,16 @@ rsync -a --exclude='.DS_Store' "$RA_BUNDLE_TEMPLATE_DIR/" "$RA_BUNDLE_DIR/"
 # Install the per-emulator launch template
 cp "$RA_LAUNCH_TEMPLATE" "$RA_BUNDLE_DIR/Contents/MacOS/launch.template"
 
-# Copy ROM into bundle
-mkdir -p "$RA_BUNDLE_DIR/Contents/Resources/Roms"
-cp "$RA_ROM_PATH" "$RA_BUNDLE_DIR/Contents/Resources/Roms/"
+# Source the emulator's bundle.sh to copy the ROM and embed config
+RA_EMU_BUNDLE_SH="$RA_SCRIPT_DIR/emulators/$RA_EMULATOR_ID/bundle.sh"
+if [ ! -f "$RA_EMU_BUNDLE_SH" ]; then
+  echo "Error: no bundle.sh found for emulator '$RA_EMULATOR_ID' (looked in $RA_EMU_BUNDLE_SH)" >&2
+  exit 1
+fi
+BUILD_BUNDLE_DIR="$RA_BUNDLE_DIR"
+BUILD_ROM_PATH="$RA_ROM_PATH"
+# shellcheck disable=SC1090
+. "$RA_EMU_BUNDLE_SH"
 
 # Copy icns if provided
 if [ -n "${RA_ICNS_PATH:-}" ]; then
@@ -165,18 +172,6 @@ done
 
 rm -f "$RA_PROCESSOR"
 
-# Embed the emulator config into the bundle.
-if [ -n "${EMU_EMBED_CONFIG_COMMAND:-}" ]; then
-  export BUILD_BUNDLE_DIR="$RA_BUNDLE_DIR"
-  eval "$EMU_EMBED_CONFIG_COMMAND"
-else
-  # Default: copy $HOME/Library/$EMU_SUPPORT_PATH into the bundle if it exists.
-  RA_EMU_CONFIG_SRC="$HOME/Library/$EMU_SUPPORT_PATH"
-  if [ -d "$RA_EMU_CONFIG_SRC" ]; then
-    mkdir -p "$RA_BUNDLE_DIR/Contents/Resources/Config"
-    cp -r "$RA_EMU_CONFIG_SRC/." "$RA_BUNDLE_DIR/Contents/Resources/Config/"
-  fi
-fi
 
 
 # Ensure the launch script is executable
