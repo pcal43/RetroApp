@@ -20,7 +20,7 @@ rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR"
 cd "$WORK_DIR"
 
-"$RETROAPP" bundle -n "$APP_NAME" -e stella -r "$ROM"
+"$RETROAPP" bundle -n "$APP_NAME" -e stella -r "$ROM" -o "$WORK_DIR"
 
 BUNDLE="$WORK_DIR/${APP_NAME}.app"
 

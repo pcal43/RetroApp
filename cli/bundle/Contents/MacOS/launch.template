@@ -2,36 +2,45 @@
 set -x
 BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 
-# Stella has a basedir option but it doesn't work on MacOS.  So we force sandboxing of
-# its configuration by manipulating $HOME.
-HOME_SANDBOX_DIR="\$HOME/$EMU_SUPPORT_PATH"
+# HOME is sandboxed so the emulator stores its config per-game under RetroApp/
+HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/$EMU_SANDBOX_HOME/$RETROAPP_GAME_NAME"
 
-# This is the subdir where the emulator will actually do its thing.
-SANDBOX_DIR="\$HOME_SANDBOX_DIR/$EMU_SUPPORT_PATH"
+# The subdir where the emulator will read/write its config.
+EMU_SANDBOX_DIR="\$HOME_SANDBOX_DIR/Library/$EMU_SUPPORT_PATH"
 
 ROM_PATH="\${BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
 
+# Search for the emulator; EMU_APP_SEARCH_PATH is colon-separated.
+_EMU_SEARCH="$EMU_APP_SEARCH_PATH"
 EMU_PATH=""
-for CANDIDATE in \
-  $EMU_APP_SEARCH_PATH ;
-  do
-  if [ -e "\$CANDIDATE" ]; then
-    EMU_PATH="\$CANDIDATE"
+_old_IFS="\$IFS"; IFS=:
+for _EMU_CANDIDATE in \$_EMU_SEARCH; do
+  IFS="\$_old_IFS"
+  if [ -e "\$_EMU_CANDIDATE" ]; then
+    EMU_PATH="\$_EMU_CANDIDATE"
     break
   fi
 done
+IFS="\$_old_IFS"
 if [ -z "\$EMU_PATH" ]; then
   echo "Error: could not find emulator" >&2
   exit 1
 fi
 
-if ! [ -d "$SANDBOX_DIR" ]; then
-    # If the sanboxed config dir doesn't exist, assume this is first launch
-    # and we should copy our bundled config into it.
-    set +e
-    mkdir -p "\${SANDBOX_DIR}"
-    cp -c -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${SANDBOX_DIR}"
-    set -e
+if ! [ -d "\$EMU_SANDBOX_DIR" ]; then
+  # First launch: seed the sandboxed config dir from the bundled Config/.
+  set +e
+  mkdir -p "\${EMU_SANDBOX_DIR}"
+  cp -c -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${EMU_SANDBOX_DIR}"
+  set -e
 fi
 
-HOME="\${HOME_SANDBOX_DIR}" open "\${EMU_PATH}" --args ${EMU_OPTIONS} "\${ROM_PATH}"
+# Launch: use 'open' for .app bundles, direct exec for plain binaries.
+case "\$EMU_PATH" in
+  *.app)
+    HOME="\${HOME_SANDBOX_DIR}" open "\${EMU_PATH}" --args $EMU_OPTIONS "\${ROM_PATH}"
+    ;;
+  *)
+    HOME="\${HOME_SANDBOX_DIR}" "\${EMU_PATH}" $EMU_OPTIONS "\${ROM_PATH}"
+    ;;
+esac

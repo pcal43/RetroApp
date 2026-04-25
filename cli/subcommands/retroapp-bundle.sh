@@ -88,11 +88,19 @@ if [ -n "${RA_ICNS_PATH:-}" ] && [ ! -f "$RA_ICNS_PATH" ]; then
   exit 1
 fi
 
-RA_TEMPLATE_DIR="$RA_SCRIPT_DIR/templates/$RA_EMULATOR_ID"
-if [ ! -d "$RA_TEMPLATE_DIR/bundle" ]; then
-  echo "Error: no bundle template found for emulator '$RA_EMULATOR_ID' (looked in $RA_TEMPLATE_DIR/bundle)" >&2
+RA_BUNDLE_TEMPLATE_DIR="$RA_SCRIPT_DIR/bundle"
+if [ ! -d "$RA_BUNDLE_TEMPLATE_DIR" ]; then
+  echo "Error: bundle template directory not found: $RA_BUNDLE_TEMPLATE_DIR" >&2
   exit 1
 fi
+
+RA_EMU_INFO="$RA_SCRIPT_DIR/emulators/$RA_EMULATOR_ID/info.sh"
+if [ ! -f "$RA_EMU_INFO" ]; then
+  echo "Error: no info.sh found for emulator '$RA_EMULATOR_ID' (looked in $RA_EMU_INFO)" >&2
+  exit 1
+fi
+# shellcheck disable=SC1090
+. "$RA_EMU_INFO"
 
 RA_ROM_BASENAME=$(basename "$RA_ROM_PATH")
 if [ -n "${RA_OUTPUT_DIR:-}" ]; then
@@ -101,10 +109,16 @@ else
   RA_OUTPUT_PATH="$(dirname "$RA_ROM_PATH")/${RA_APP_NAME}.app"
 fi
 
-# Create staging area and copy template bundle into it
+# Export all build-time substitution variables for the template processor
+export RETROAPP_APP_NAME="$RA_APP_NAME"
+export RETROAPP_GAME_NAME="$RA_APP_NAME"
+export RETROAPP_ROM_NAME="$RA_ROM_BASENAME"
+export EMU_SANDBOX_HOME EMU_SUPPORT_PATH EMU_APP_SEARCH_PATH EMU_OPTIONS
+
+# Create staging area and copy the shared bundle template into it
 RA_STAGING_DIR=$(mktemp -d -t retroapp-bundle)
 RA_BUNDLE_DIR="$RA_STAGING_DIR/${RA_APP_NAME}.app"
-rsync -a --exclude='.DS_Store' "$RA_TEMPLATE_DIR/bundle/" "$RA_BUNDLE_DIR/"
+rsync -a --exclude='.DS_Store' "$RA_BUNDLE_TEMPLATE_DIR/" "$RA_BUNDLE_DIR/"
 
 # Copy ROM into bundle
 mkdir -p "$RA_BUNDLE_DIR/Contents/Resources/Roms"
@@ -115,20 +129,19 @@ if [ -n "${RA_ICNS_PATH:-}" ]; then
   cp "$RA_ICNS_PATH" "$RA_BUNDLE_DIR/Contents/Resources/AppIcon.icns"
 fi
 
-# Write a Python processor to a temp file to safely handle $ substitution
+# Write the template processor to a temp file.
+# It reads RETROAPP_* and EMU_* from the environment, substituting longest keys
+# first to avoid partial matches (e.g. RETROAPP_APP_NAME before RETROAPP_APP).
+# After substitution, \$ sequences are unescaped to $ (runtime shell variables).
 RA_PROCESSOR=$(mktemp /tmp/retroapp-processor-XXXXXX)
 cat > "$RA_PROCESSOR" << 'PYEOF'
-import sys
-app_name = sys.argv[1]
-rom_name = sys.argv[2]
-src      = sys.argv[3]
-dst      = sys.argv[4]
+import sys, os
+src, dst = sys.argv[1], sys.argv[2]
 content = open(src).read()
-for token in ('${RETROAPP_APP_NAME}', '$RETROAPP_APP_NAME',
-              '${RETROAPP_GAME_NAME}', '$RETROAPP_GAME_NAME'):
-    content = content.replace(token, app_name)
-for token in ('${RETROAPP_ROM_NAME}', '$RETROAPP_ROM_NAME'):
-    content = content.replace(token, rom_name)
+for key, val in sorted(os.environ.items(), key=lambda x: -len(x[0])):
+    if key.startswith(('RETROAPP_', 'EMU_')):
+        content = content.replace('${' + key + '}', val)
+        content = content.replace('$' + key, val)
 content = content.replace('\\$', '$')
 open(dst, 'w').write(content)
 PYEOF
@@ -136,7 +149,7 @@ PYEOF
 # Process all .template files
 find "$RA_BUNDLE_DIR" -name "*.template" | while IFS= read -r template_file; do
   output_file="${template_file%.template}"
-  python3 "$RA_PROCESSOR" "$RA_APP_NAME" "$RA_ROM_BASENAME" "$template_file" "$output_file"
+  python3 "$RA_PROCESSOR" "$template_file" "$output_file"
   rm "$template_file"
 done
 
