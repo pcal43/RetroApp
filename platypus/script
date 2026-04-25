@@ -10,6 +10,8 @@ RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 /bin/zsh -l "$RESOURCES_DIR/cli/retroapp" drag "$@"
 
+print "\n\n"
+
 if [ "$?" -eq 0 ]; then
   print "SUCCESS"
 else
