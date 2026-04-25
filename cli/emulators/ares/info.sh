@@ -7,3 +7,9 @@ EMU_APP_PATH="/Applications/ares.app"
 
 # Options passed to the emulator.
 EMU_OPTIONS="--fullscreen"
+
+
+# Options passed to the emulator.
+EMU_COMMAND= << 'EOF'
+"\${BUNDLE_EMULATOR_PATH}" --args --fullscreen "\${ROM_PATH}"
+EOF

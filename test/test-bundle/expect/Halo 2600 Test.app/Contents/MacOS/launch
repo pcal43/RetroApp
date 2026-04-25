@@ -1,44 +1,42 @@
 #!/bin/sh
 set -x
-BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
+BUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 
 # HOME is sandboxed so the emulator stores its config per-game under RetroApp/
-HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/stella/Halo 2600 Test"
+BUN_HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/stella/Halo 2600 Test"
 
 # The subdir where the emulator will read/write its config.
-SANDBOX_DIR="$HOME_SANDBOX_DIR/Library/Application Support/Stella"
+BUN_SANDBOX_DIR="$BUN_HOME_SANDBOX_DIR/Library/Application Support/Stella"
 
-ROM_PATH="${BUNDLE_DIR}/Contents/Resources/Roms/Halo2600.a26"
+BUN_ROM_PATH="${BUN_BUNDLE_DIR}/Contents/Resources/Roms/Halo2600.a26"
 
 
 # Find the emulator: prefer a bundled .app in Contents/Resources/Emulator/,
 # then fall back to EMU_APP_PATH.
-_EMU_BUNDLED="${BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
-if [ -e "$_EMU_BUNDLED" ]; then
-  EMU_PATH="$_EMU_BUNDLED"
+BUN_EMU_BUNDLED="${BUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
+if [ -e "$BUN_EMU_BUNDLED" ]; then
+  BUN_EMU_PATH="$BUN_EMU_BUNDLED"
 elif [ -e "/Applications/Stella.app" ]; then
-  EMU_PATH="/Applications/Stella.app"
+  BUN_EMU_PATH="/Applications/Stella.app"
 else
   echo "Error: could not find emulator" >&2
   exit 1
 fi
 
-echo "$SANDBOX_DIR"
-
-if ! [ -d "$SANDBOX_DIR" ]; then
+if ! [ -d "$BUN_SANDBOX_DIR" ]; then
   # First launch: seed the sandboxed config dir from the bundled Config/.
   set +e
-  mkdir -p "${SANDBOX_DIR}"
-  cp -r "${BUNDLE_DIR}/Contents/Resources/Config/"* "${SANDBOX_DIR}"
+  mkdir -p "${BUN_SANDBOX_DIR}"
+  cp -r "${BUN_BUNDLE_DIR}/Contents/Resources/Config/"* "${BUN_SANDBOX_DIR}"
   set -e
 fi
 
 # Launch: use 'open' for .app bundles, direct exec for plain binaries.
-case "$EMU_PATH" in
+case "$BUN_EMU_PATH" in
   *.app)
-    HOME="${HOME_SANDBOX_DIR}" open "${EMU_PATH}" --args -fullscreen 1 "${ROM_PATH}"
+    HOME="${BUN_HOME_SANDBOX_DIR}" open "${BUN_EMU_PATH}" --args -fullscreen 1 "${BUN_ROM_PATH}"
     ;;
   *)
-    HOME="${HOME_SANDBOX_DIR}" "${EMU_PATH}" -fullscreen 1 "${ROM_PATH}"
+    HOME="${BUN_HOME_SANDBOX_DIR}" "${BUN_EMU_PATH}" -fullscreen 1 "${BUN_ROM_PATH}"
     ;;
 esac

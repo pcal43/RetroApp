@@ -1,44 +1,42 @@
 #!/bin/sh
 set -x
-BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
+RUN_BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 
 # HOME is sandboxed so the emulator stores its config per-game under RetroApp/
-HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/$RETROAPP_EMULATOR_ID/$RETROAPP_GAME_NAME"
+RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/$RETROAPP_EMULATOR_ID/$RETROAPP_GAME_NAME"
 
 # The subdir where the emulator will read/write its config.
-SANDBOX_DIR="\$HOME_SANDBOX_DIR/Library/$EMU_SUPPORT_PATH"
+RUN_SANDBOX_DIR="\$RUN_HOME_SANDBOX_DIR/Library/$EMU_SUPPORT_PATH"
 
-ROM_PATH="\${BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
+RUN_ROM_PATH="\${RUN_BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
 
 
 # Find the emulator: prefer a bundled .app in Contents/Resources/Emulator/,
 # then fall back to EMU_APP_PATH.
-_EMU_BUNDLED="\${BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
-if [ -e "\$_EMU_BUNDLED" ]; then
-  EMU_PATH="\$_EMU_BUNDLED"
+RUN_EMU_BUNDLED="\${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
+if [ -e "\$RUN_EMU_BUNDLED" ]; then
+  RUN_EMU_PATH="\$RUN_EMU_BUNDLED"
 elif [ -e "$EMU_APP_PATH" ]; then
-  EMU_PATH="$EMU_APP_PATH"
+  RUN_EMU_PATH="$EMU_APP_PATH"
 else
   echo "Error: could not find emulator" >&2
   exit 1
 fi
 
-echo "$SANDBOX_DIR"
-
-if ! [ -d "\$SANDBOX_DIR" ]; then
+if ! [ -d "\$RUN_SANDBOX_DIR" ]; then
   # First launch: seed the sandboxed config dir from the bundled Config/.
   set +e
-  mkdir -p "\${SANDBOX_DIR}"
-  cp -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${SANDBOX_DIR}"
+  mkdir -p "\${RUN_SANDBOX_DIR}"
+  cp -r "\${RUN_BUNDLE_DIR}/Contents/Resources/Config/"* "\${RUN_SANDBOX_DIR}"
   set -e
 fi
 
 # Launch: use 'open' for .app bundles, direct exec for plain binaries.
-case "\$EMU_PATH" in
+case "\$RUN_EMU_PATH" in
   *.app)
-    HOME="\${HOME_SANDBOX_DIR}" open "\${EMU_PATH}" --args $EMU_OPTIONS "\${ROM_PATH}"
+    HOME="\${RUN_HOME_SANDBOX_DIR}" open "\${RUN_EMU_PATH}" --args $EMU_OPTIONS "\${RUN_ROM_PATH}"
     ;;
   *)
-    HOME="\${HOME_SANDBOX_DIR}" "\${EMU_PATH}" $EMU_OPTIONS "\${ROM_PATH}"
+    HOME="\${RUN_HOME_SANDBOX_DIR}" "\${RUN_EMU_PATH}" $EMU_OPTIONS "\${RUN_ROM_PATH}"
     ;;
 esac
