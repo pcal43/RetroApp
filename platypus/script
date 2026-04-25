@@ -1,11 +1,10 @@
-#!/bin/bash
+#!/bin/zsh
 
 # platypus copies this file into Resources and names it 'script'
 
-echo "Running RetroAppMaker!"
-echo "Received $# argument(s):"
+print "Running RetroAppMaker!"
+print "Received $# argument(s):"
 for arg in "$@"; do echo "  $arg"; done
-
 
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 

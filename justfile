@@ -18,13 +18,13 @@ build version="":
     rm -f "{{build_dir}}/RetroAppMaker.app"
     platypus \
       --name RetroAppMaker \
+      --author 'pcal' \
       --app-version "$VERSION" \
-      --interface-type "Text Window" \
-      --interpreter "/bin/bash" \
+      --interface-type "Droplet" \
+      --interpreter "/bin/zsh" \
       --app-icon "{{root_dir}}/AppIcon.icns" \
       --bundle-identifier "net.pcal.RetroAppMaker" \
       --droppable \
-      --suffixes 'png|bin'\
       --bundled-file "{{ui_dir}}|{{cli_dir}}|{{root_dir}}/version" \
       --overwrite \
       "{{platypus_dir}}/script" \
