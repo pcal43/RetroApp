@@ -19,11 +19,11 @@ EOF
 
 /usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
 
-
+print "OK!" > "$HOME/raoutput.txt"
 
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
-print "command: $RESOURCES_DIR/cli/retroapp drag" > "$HOME/raoutput.txt"
+print "command: $RESOURCES_DIR/cli/retroapp drag" >> "$HOME/raoutput.txt"
 print "args: $@" >> "$HOME/raoutput.txt"
 print "" >> "$HOME/raoutput.txt"
 
