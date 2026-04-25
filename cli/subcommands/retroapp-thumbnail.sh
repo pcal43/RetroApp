@@ -64,7 +64,7 @@ RA_TEMP_PNG=$(mktemp /tmp/retroapp-icon-XXXXXX)
 mv "$RA_TEMP_PNG" "${RA_TEMP_PNG}.png"
 RA_TEMP_PNG="${RA_TEMP_PNG}.png"
 
-echo "Downloading thumbnail from $$RA_TEMP_PNG" >&2
+echo "Downloading thumbnail to $RA_TEMP_PNG" >&2
 if curl -fsSL -o "$RA_TEMP_PNG" "$RA_ICON_URL" 2>/dev/null; then
   echo "$RA_TEMP_PNG"
 else

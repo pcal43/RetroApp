@@ -213,7 +213,11 @@ if [ -n "$DRAG_ICON_PNG" ]; then
   DRAG_ICNS=$(mktemp /tmp/retroapp-icon-XXXXXX)
   mv "$DRAG_ICNS" "${DRAG_ICNS}.icns"
   DRAG_ICNS="${DRAG_ICNS}.icns"
-  "$RA_RETROAPP" icns "$DRAG_ICON_PNG" "$DRAG_ICNS"
+  if ! "$RA_RETROAPP" icns "$DRAG_ICON_PNG" "$DRAG_ICNS"; then
+    echo "WARNING: failed to build icns, falling back to default icon." >&2
+    rm -f "$DRAG_ICNS"
+    DRAG_ICNS=""
+  fi
 else
   echo "No icon available; using default from template." >&2
 fi

@@ -25,7 +25,7 @@ if [ ! -d "$TMP_ICONSET" ]; then
 fi
 
 # Sizes needed for macOS iconset
-SIZES="16 32 64 128 256 512 1024"
+SIZES=(16 32 64 128 256 512 1024)
 
 for size in $SIZES; do
   sips  -s format png -z "$size" "$size" "$INPUT" --out "$TMP_ICONSET/icon_${size}x${size}.png" >/dev/null 2>&1
