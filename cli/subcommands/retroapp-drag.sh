@@ -124,10 +124,13 @@ DRAG_EMULATOR_ID=$(tr -d '[:space:]' < "$DRAG_EMU_FILE" | cut -d'/' -f1)
 
 # Get an icon PNG if none was provided
 if [ -z "$DRAG_ICON_PNG" ]; then
+  echo "Getting icon..."
   DRAG_ICON_PNG=$("$RA_RETROAPP" icon-png "$DRAG_ROM_SYSTEM" "$DRAG_GAME_NAME") || true
 fi
 
-# Convert PNG to .icns
+# Convert PNG to .icn
+echo "Buliding icns"
+
 DRAG_ICNS=$(mktemp /tmp/retroapp-icon-XXXXXX)
 mv "$DRAG_ICNS" "${DRAG_ICNS}.icns"
 DRAG_ICNS="${DRAG_ICNS}.icns"

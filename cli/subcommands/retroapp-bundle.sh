@@ -27,6 +27,10 @@ in MacOS.
     -i icnsPath          Path to a .icns file toto use as an app icon.  These
                          can be generated with 'retroapp make-icon'.
                          Optional.  If omitted, a default icon will be used.
+
+    -o outputDir         Directory that the new bundle will be created in.
+                         Optional.  If omitted, the directory containing the 
+                         rom file (romPath) will be used.
     
 
 This tool works as follows:
@@ -50,12 +54,13 @@ for an example of the kind of template we will be processing.
   exit 1
 }
 
-while getopts "n:e:r:i:h" opt; do
+while getopts "n:e:r:i:o:h" opt; do
   case $opt in
     n) CLI_APP_NAME="$OPTARG" ;;
     e) CLI_EMULATOR_ID="$OPTARG" ;;
     r) CLI_ROM_PATH="$OPTARG" ;;
     i) CLI_ICNS_PATH="$OPTARG" ;;
+    o) CLI_OUTPUT_DIR="$OPTARG" ;;
     h) usage ;;
     *) usage ;;
   esac
@@ -90,7 +95,11 @@ if [ ! -d "$CLI_TEMPLATE_DIR/bundle" ]; then
 fi
 
 CLI_ROM_BASENAME=$(basename "$CLI_ROM_PATH")
-CLI_OUTPUT_PATH="$PWD/${CLI_APP_NAME}.app"
+if [ -n "${CLI_OUTPUT_DIR:-}" ]; then
+  CLI_OUTPUT_PATH="${CLI_OUTPUT_DIR}/${CLI_APP_NAME}.app"
+else
+  CLI_OUTPUT_PATH="$(dirname "$CLI_ROM_PATH")/${CLI_APP_NAME}.app"
+fi
 
 # Create staging area and copy template bundle into it
 CLI_STAGING_DIR=$(mktemp -d -t retroapp-bundle)
