@@ -128,8 +128,8 @@ if [ -z "$DRAG_ICON_PNG" ]; then
   DRAG_ICON_PNG=$("$RA_RETROAPP" icon-png "$DRAG_ROM_SYSTEM" "$DRAG_GAME_NAME") || true
 fi
 
-# Convert PNG to .icn
-echo "Buliding icns"
+# Convert PNG to .icns
+echo "Building icns" >&2
 
 DRAG_ICNS=$(mktemp /tmp/retroapp-icon-XXXXXX)
 mv "$DRAG_ICNS" "${DRAG_ICNS}.icns"
