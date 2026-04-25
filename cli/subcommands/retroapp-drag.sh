@@ -69,15 +69,67 @@ DRAG_ROM_SYSTEM=""
 DRAG_GAME_NAME=""
 DRAG_ICON_PNG=""
 
-# Expand arguments into a flat file list (directories are expanded recursively)
-DRAG_FILE_LIST=$(mktemp /tmp/retroapp-filelist-XXXXXX)
+# Temp directory for archive extractions (cleaned up at end of script)
+DRAG_EXTRACT_DIR=$(mktemp -d /tmp/retroapp-extract-XXXXXX)
+
+# Helper: return 0 if the file is a supported archive format
+_is_archive() {
+  case "$1" in
+    *.zip|*.ZIP|*.7z|*.7Z|*.rar|*.RAR) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# Helper: extract an archive into a destination directory
+_extract_archive() {
+  _arc_file="$1"
+  _arc_dst="$2"
+  case "$_arc_file" in
+    *.zip|*.ZIP)
+      unzip -q "$_arc_file" -d "$_arc_dst" ;;
+    *.7z|*.7Z)
+      if command -v 7z > /dev/null 2>&1; then
+        7z x -o"$_arc_dst" "$_arc_file" > /dev/null
+      else
+        echo "WARNING: 7z not installed, cannot extract: $_arc_file" >&2
+        return 1
+      fi ;;
+    *.rar|*.RAR)
+      if command -v unrar > /dev/null 2>&1; then
+        unrar x "$_arc_file" "$_arc_dst/" > /dev/null
+      else
+        echo "WARNING: unrar not installed, cannot extract: $_arc_file" >&2
+        return 1
+      fi ;;
+  esac
+}
+
+# Step 1: expand directory arguments into a raw flat file list
+DRAG_RAW_LIST=$(mktemp /tmp/retroapp-rawlist-XXXXXX)
 for DRAG_ARG in "$@"; do
   if [ -d "$DRAG_ARG" ]; then
-    find "$DRAG_ARG" -type f >> "$DRAG_FILE_LIST"
+    find "$DRAG_ARG" -type f >> "$DRAG_RAW_LIST"
   else
-    printf '%s\n' "$DRAG_ARG" >> "$DRAG_FILE_LIST"
+    printf '%s\n' "$DRAG_ARG" >> "$DRAG_RAW_LIST"
   fi
 done
+
+# Step 2: expand any archives in the raw list into the final file list
+DRAG_FILE_LIST=$(mktemp /tmp/retroapp-filelist-XXXXXX)
+while IFS= read -r _raw_file; do
+  if _is_archive "$_raw_file"; then
+    _subdir=$(mktemp -d "$DRAG_EXTRACT_DIR/XXXXXX")
+    echo "Extracting archive: $_raw_file" >&2
+    if _extract_archive "$_raw_file" "$_subdir"; then
+      find "$_subdir" -type f >> "$DRAG_FILE_LIST"
+    else
+      echo "WARNING: could not extract archive, skipping: $_raw_file" >&2
+    fi
+  else
+    printf '%s\n' "$_raw_file" >> "$DRAG_FILE_LIST"
+  fi
+done < "$DRAG_RAW_LIST"
+rm -f "$DRAG_RAW_LIST"
 
 echo 'Files to process:' >&2
 cat "$DRAG_FILE_LIST" >&2
@@ -170,3 +222,4 @@ else
 fi
 
 rm -f "$DRAG_ICNS"
+rm -rf "$DRAG_EXTRACT_DIR"
