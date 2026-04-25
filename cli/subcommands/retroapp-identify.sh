@@ -50,7 +50,7 @@ fi
 # Prints "emulator game_name" and returns 0 on match; returns 1 otherwise.
 search_crc() {
   _crc="$1"
-  for _dat_file in "$RA_HASHES_DIR"/*/*.dat; do
+  for _dat_file in "$RA_HASHES_DIR"/*.dat; do
     [ -f "$_dat_file" ] || continue
     if grep -q "crc $_crc" "$_dat_file"; then
       _found_dat=$(basename "$_dat_file" .dat)

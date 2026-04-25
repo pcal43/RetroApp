@@ -32621,7 +32621,7 @@ game (
 	serial "SCUS-94188"
 	rom ( name "Hot Shots Golf (USA).bin" size 303539712 crc 19F776A1 md5 5F7999AA2E7BFAAAA982AF118DFBB83D sha1 2D766EC4D7337175BF770049B394F9F7C328302E serial "SCUS-94188" )
 )
-game (
+name (
 	name "Hot Shots Golf 2 (USA)"
 	region "USA"
 	serial "SCUS-94476"
