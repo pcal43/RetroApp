@@ -8,7 +8,5 @@ for arg in "$@"; do echo "  $arg"; done
 
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
-output=$(/bin/zsh -l "$RESOURCES_DIR/cli/retroapp" drag "$@" 2>&1)
+/bin/zsh -l "$RESOURCES_DIR/cli/retroapp" drag "$@"
 exit_code=$?
-
-#print "$output"
