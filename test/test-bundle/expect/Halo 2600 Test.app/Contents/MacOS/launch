@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 set -x
 RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 

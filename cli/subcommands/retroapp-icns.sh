@@ -44,5 +44,5 @@ fi
 # Cleanup temp directory
 #rm -rf "$TMP_ICONSET"
 
-echo "Created $OUTPUT"
+echo "Created $OUTPUT" >&2
 exit 0
