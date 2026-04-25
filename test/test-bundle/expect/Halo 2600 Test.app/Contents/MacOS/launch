@@ -1,0 +1,37 @@
+#!/bin/sh
+set -x
+BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
+
+# Stella has a basedir option but it doesn't work on MacOS.  So we force sandboxing of
+# its configuration by manipulating $HOME.
+HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/Stella/Halo 2600 Test"
+
+# This is the subdir where Stella will actually do its thing.
+STELLA_SANDBOX_DIR="$HOME/Library/Application Support/Stella"
+
+ROM_PATH="${BUNDLE_DIR}/Contents/Resources/Roms/Halo2600.a26"
+
+STELLA_PATH=""
+for _stella_candidate in \
+  "${BUNDLE_DIR}/Contents/MacOS/Stella.app" \
+  "/Applications/Stella.app"; do
+  if [ -d "$_stella_candidate" ]; then
+    STELLA_PATH="$_stella_candidate"
+    break
+  fi
+done
+if [ -z "$STELLA_PATH" ]; then
+  echo "Error: could not find Stella.app" >&2
+  exit 1
+fi
+
+if ! [ -d "$STELLA_SANDBOX_DIR" ]; then
+    # If the sanboxed config dir doesn't exist, assume this is first launch
+    # and we should copy our bundled config into it.
+    set +e
+    mkdir -p "${STELLA_SANDBOX_DIR}"
+    cp -c -r "${BUNDLE_DIR}/Contents/Resources/Config/"* "${STELLA_SANDBOX_DIR}"
+    set -e
+fi
+
+HOME="${HOME_SANDBOX_DIR}" open "${STELLA_PATH}" --args -nogui -fastboot -fullscreen -batch  "${ROM_PATH}"

@@ -7,7 +7,7 @@ BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/Stella/$RETROAPP_GAME_NAME"
 
 # This is the subdir where Stella will actually do its thing.
-STELLA_SANDBOX_DIR="\$/Library/Application Support/Stella"
+STELLA_SANDBOX_DIR="\$HOME/Library/Application Support/Stella"
 
 ROM_PATH="\${BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
 
