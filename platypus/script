@@ -2,8 +2,9 @@
 
 # platypus copies this file into Resources and names it 'script'
 
- /usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
+/usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
 
+ 
 show_error() {
   local text="${1:-An unknown error occurred.}"
 
@@ -15,6 +16,9 @@ display dialog ${text@Q} ¬
   with icon stop
 EOF
 }
+
+/usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
+
 
 
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
