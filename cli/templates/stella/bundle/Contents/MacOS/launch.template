@@ -34,4 +34,5 @@ if ! [ -d "$EMU_SANDBOX_DIR" ]; then
     set -e
 fi
 
-HOME="\${HOME_SANDBOX_DIR}" open "\${EMU_PATH}" --args -nogui -fastboot -fullscreen -batch  "\${ROM_PATH}"
+# fullscreen doesnt seem to work reliably
+HOME="\${HOME_SANDBOX_DIR}" open "\${EMU_PATH}" --args -fullscreen 1 "\${ROM_PATH}"

@@ -7,7 +7,7 @@ BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/Nestopia/$RETROAPP_GAME_NAME"
 
 # This is the subdir where the emulator will actually do its thing.
-EMU_SANDBOX_DIR="\$HOME_SANDBOX_DIR/Library/Application\ Support/Bannister/Nestopia/"
+EMU_SANDBOX_DIR="\$HOME_SANDBOX_DIR/Library/Application Support/Bannister/Nestopia/"
 
 ROM_PATH="\${BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
 
@@ -15,8 +15,8 @@ EMU_PATH=""
 for EMU_CANDIDATE in \
   "\${BUNDLE_DIR}/Contents/MacOS/Nestopia.app" \
   "/Applications/Nestopia.app" \
-  "/opt/homebrew/bin/nestopia" do
-  if [ -d "\$EMU_CANDIDATE" ]; then
+  "/opt/homebrew/bin/nestopia"; do
+  if [ -e "\$EMU_CANDIDATE" ]; then
     EMU_PATH="\$EMU_CANDIDATE"
     break
   fi
