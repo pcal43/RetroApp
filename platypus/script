@@ -9,4 +9,9 @@ for arg in "$@"; do echo "  $arg"; done
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 /bin/zsh -l "$RESOURCES_DIR/cli/retroapp" drag "$@"
-exit_code=$?
+
+if [ "$?" -eq 0 ]; then
+  print "SUCCESS"
+else
+  print "FAILURE"
+fi

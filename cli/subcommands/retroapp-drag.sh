@@ -79,13 +79,14 @@ for DRAG_ARG in "$@"; do
   fi
 done
 
-echo "Files to process:" >&2
+echo 'Files to process:' >&2
 cat "$DRAG_FILE_LIST" >&2
+echo "\n\n" >&2
 
 # Iterate through the expanded file list, identify each file
 while IFS= read -r DRAG_FILE; do
   if [ ! -f "$DRAG_FILE" ]; then
-    echo "Warning: file not found, skipping: $DRAG_FILE" >&2
+    echo "WARNING file not found, skipping $DRAG_FILE" >&2
     continue
   fi
 
@@ -95,24 +96,26 @@ while IFS= read -r DRAG_FILE; do
   case "$DRAG_TYPE" in
     png)
       if [ -n "$DRAG_ICON_PNG" ]; then
-        echo "Warning: multiple PNG files provided; ignoring $DRAG_FILE" >&2
+        echo "WARNING multiple PNG files provided, ignoring $DRAG_FILE" >&2
       else
-        echo "...png file.  Will use this as an icon."
+        echo "Will use this for the icon: $DRAG_FILE"
         DRAG_ICON_PNG="$DRAG_FILE"
       fi
       ;;
     rom)
       if [ -n "$DRAG_ROM_PATH" ]; then
-        echo "Warning: multiple ROM files provided; ignoring $DRAG_FILE" >&2
+        echo "WARNING multiple ROM files provided; ignoring $DRAG_FILE" >&2
       else
         DRAG_ROM_PATH="$DRAG_FILE"
         DRAG_ROM_SYSTEM=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '2p')
         DRAG_GAME_NAME=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '3p')
-        echo "...rom file.  System is $DRAG_ROM_SYSTEM. Game is $DRAG_GAME_NAME"
+        echo "Will use this for the ROM file: $DRAG_FILE" >&2
+        echo "System is $DRAG_ROM_SYSTEM" >&2
+        echo "Game is $DRAG_GAME_NAME" >&2
       fi
       ;;
     *)
-      echo "Warning: could not identify file, skipping: $DRAG_FILE" >&2
+      echo "WARNING could not identify file, ignoring: $DRAG_FILE" >&2
       ;;
   esac
 done < "$DRAG_FILE_LIST"
@@ -120,14 +123,14 @@ rm -f "$DRAG_FILE_LIST"
 
 # Require a ROM
 if [ -z "$DRAG_ROM_PATH" ]; then
-  echo "Error: no ROM file could be identified among the provided files." >&2
+  echo "ERROR no ROM file could be identified among the provided files." >&2
   exit 1
 fi
 
 # Look up emulator id from cli/systems/<system name>
 DRAG_EMU_FILE="$RA_SCRIPT_DIR/systems/${DRAG_ROM_SYSTEM}"
 if [ ! -f "$DRAG_EMU_FILE" ]; then
-  echo "Error: emulator not supported for system '$DRAG_ROM_SYSTEM'" >&2
+  echo "ERROR emulator not supported for system '$DRAG_ROM_SYSTEM'" >&2
   exit 1
 fi
 # The file may contain just an id ("nestopia") or a path ("stella/Stella-6.0.app");
