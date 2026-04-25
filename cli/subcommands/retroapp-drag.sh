@@ -104,13 +104,19 @@ _extract_archive() {
   esac
 }
 
-# Step 1: expand directory arguments into a raw flat file list
+# Step 1: expand directory arguments into a raw flat file list.
+# Track a candidate output directory: a directly-dragged archive sets it provisionally;
+# a directly-dragged (non-temp) ROM will override it later.
+DRAG_OUTPUT_DIR=""
 DRAG_RAW_LIST=$(mktemp /tmp/retroapp-rawlist-XXXXXX)
 for DRAG_ARG in "$@"; do
   if [ -d "$DRAG_ARG" ]; then
     find "$DRAG_ARG" -type f >> "$DRAG_RAW_LIST"
   else
     printf '%s\n' "$DRAG_ARG" >> "$DRAG_RAW_LIST"
+    if [ -z "$DRAG_OUTPUT_DIR" ] && _is_archive "$DRAG_ARG"; then
+      DRAG_OUTPUT_DIR=$(dirname "$DRAG_ARG")
+    fi
   fi
 done
 
@@ -164,6 +170,11 @@ while IFS= read -r DRAG_FILE; do
         echo "Will use this for the ROM file: $DRAG_FILE" >&2
         echo "  System is $DRAG_ROM_SYSTEM" >&2
         echo "  Game is $DRAG_GAME_NAME" >&2
+        # ROM from the user's filesystem overrides the provisional archive output dir
+        case "$DRAG_ROM_PATH" in
+          "$DRAG_EXTRACT_DIR"/*) ;;
+          *) DRAG_OUTPUT_DIR=$(dirname "$DRAG_ROM_PATH") ;;
+        esac
       fi
       ;;
     *)
@@ -208,18 +219,10 @@ else
 fi
 
 echo "Building application bundle."  >&2
-if [ -n "$DRAG_ICNS" ]; then
-  "$RA_RETROAPP" bundle \
-    -n "$DRAG_GAME_NAME" \
-    -e "$DRAG_EMULATOR_ID" \
-    -r "$DRAG_ROM_PATH" \
-    -i "$DRAG_ICNS"
-else
-  "$RA_RETROAPP" bundle \
-    -n "$DRAG_GAME_NAME" \
-    -e "$DRAG_EMULATOR_ID" \
-    -r "$DRAG_ROM_PATH"
-fi
+set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -r "$DRAG_ROM_PATH"
+[ -n "$DRAG_OUTPUT_DIR" ] && set -- "$@" -o "$DRAG_OUTPUT_DIR"
+[ -n "$DRAG_ICNS" ]       && set -- "$@" -i "$DRAG_ICNS"
+"$RA_RETROAPP" bundle "$@"
 
 rm -f "$DRAG_ICNS"
 rm -rf "$DRAG_EXTRACT_DIR"
