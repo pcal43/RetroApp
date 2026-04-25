@@ -25,7 +25,7 @@ in MacOS.
                          Required.
 
     -i icnsPath          Path to a .icns file toto use as an app icon.  These
-                         can be generated with 'retroapp make-icon'.
+                         can be generated with 'retroapp icns'.
                          Optional.  If omitted, a default icon will be used.
 
     -o outputDir         Directory that the new bundle will be created in.

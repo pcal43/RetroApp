@@ -239,7 +239,7 @@ EOF
     if [ "${CLI_ICON_IMAGE##*.}" = "icns" ]; then
       cp "$CLI_ICON_IMAGE" "$BUNDLE_DIR/$CLI_BUNDLED_ICON_PATH"
     else
-      "$RA_RETROAPP" make-icon "$CLI_ICON_IMAGE" "$BUNDLE_DIR/$CLI_BUNDLED_ICON_PATH"
+      "$RA_RETROAPP" icns "$CLI_ICON_IMAGE" "$BUNDLE_DIR/$CLI_BUNDLED_ICON_PATH"
     fi
   fi
 
