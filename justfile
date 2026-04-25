@@ -26,7 +26,6 @@ build version="":
       --droppable \
       --bundled-file "{{ui_dir}}|{{cli_dir}}|{{root_dir}}/version" \
       --overwrite \
-      --quit-after-execution \
       "{{platypus_dir}}/script" \
       "{{build_dir}}/RetroAppMaker.app"
     cp version "{{build_dir}}/RetroAppMaker.app/Contents/Resources/cli/"
