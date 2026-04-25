@@ -69,10 +69,21 @@ DRAG_ROM_SYSTEM=""
 DRAG_GAME_NAME=""
 DRAG_ICON_PNG=""
 
-# Iterate through all arguments, identify each file
-echo "Checking files:" >&2
-for DRAG_FILE in "$@"; do
-  echo "$DRAG_FILE" >&2
+# Expand arguments into a flat file list (directories are expanded recursively)
+DRAG_FILE_LIST=$(mktemp /tmp/retroapp-filelist-XXXXXX)
+for DRAG_ARG in "$@"; do
+  if [ -d "$DRAG_ARG" ]; then
+    find "$DRAG_ARG" -type f >> "$DRAG_FILE_LIST"
+  else
+    printf '%s\n' "$DRAG_ARG" >> "$DRAG_FILE_LIST"
+  fi
+done
+
+echo "Files to process:" >&2
+cat "$DRAG_FILE_LIST" >&2
+
+# Iterate through the expanded file list, identify each file
+while IFS= read -r DRAG_FILE; do
   if [ ! -f "$DRAG_FILE" ]; then
     echo "Warning: file not found, skipping: $DRAG_FILE" >&2
     continue
@@ -104,7 +115,8 @@ for DRAG_FILE in "$@"; do
       echo "Warning: could not identify file, skipping: $DRAG_FILE" >&2
       ;;
   esac
-done
+done < "$DRAG_FILE_LIST"
+rm -f "$DRAG_FILE_LIST"
 
 # Require a ROM
 if [ -z "$DRAG_ROM_PATH" ]; then
