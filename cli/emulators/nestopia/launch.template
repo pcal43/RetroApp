@@ -1,0 +1,27 @@
+#!/bin/sh
+set -x
+RUN_BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
+
+RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/nestopia/$RETROAPP_GAME_NAME"
+RUN_SANDBOXED_CONFIG_DIR="\$RUN_HOME_SANDBOX_DIR/Library/Application Support/Bannister/Nestopia"
+RUN_ROM_PATH="\${RUN_BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
+
+# Find Nestopia: prefer a bundled copy, then fall back to /Applications.
+RUN_EMU_BUNDLED="\${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
+if [ -e "\$RUN_EMU_BUNDLED" ]; then
+  RUN_EMU_PATH="\$RUN_EMU_BUNDLED"
+elif [ -e "/Applications/Nestopia.app" ]; then
+  RUN_EMU_PATH="/Applications/Nestopia.app"
+else
+  echo "Error: Nestopia not found. Download from https://github.com/0ldsk00l/nestopia" >&2
+  exit 1
+fi
+
+if ! [ -d "\$RUN_SANDBOXED_CONFIG_DIR" ]; then
+  set +e
+  mkdir -p "\${RUN_SANDBOXED_CONFIG_DIR}"
+  cp -r "\${RUN_BUNDLE_DIR}/Contents/Resources/Config/." "\${RUN_SANDBOXED_CONFIG_DIR}/"
+  set -e
+fi
+
+HOME="\${RUN_HOME_SANDBOX_DIR}" open "\${RUN_EMU_PATH}" --args -nogui -fastboot -fullscreen -batch "\${RUN_ROM_PATH}"

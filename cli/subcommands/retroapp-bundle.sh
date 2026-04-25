@@ -94,6 +94,12 @@ if [ ! -d "$RA_BUNDLE_TEMPLATE_DIR" ]; then
   exit 1
 fi
 
+RA_LAUNCH_TEMPLATE="$RA_SCRIPT_DIR/emulators/$RA_EMULATOR_ID/launch.template"
+if [ ! -f "$RA_LAUNCH_TEMPLATE" ]; then
+  echo "Error: no launch.template found for emulator '$RA_EMULATOR_ID' (looked in $RA_LAUNCH_TEMPLATE)" >&2
+  exit 1
+fi
+
 RA_EMU_INFO="$RA_SCRIPT_DIR/emulators/$RA_EMULATOR_ID/info.sh"
 if [ ! -f "$RA_EMU_INFO" ]; then
   echo "Error: no info.sh found for emulator '$RA_EMULATOR_ID' (looked in $RA_EMU_INFO)" >&2
@@ -109,17 +115,19 @@ else
   RA_OUTPUT_PATH="$(dirname "$RA_ROM_PATH")/${RA_APP_NAME}.app"
 fi
 
-# Export all build-time substitution variables for the template processor
+# Export build-time substitution variables for the template processor
 export RETROAPP_APP_NAME="$RA_APP_NAME"
 export RETROAPP_GAME_NAME="$RA_APP_NAME"
 export RETROAPP_ROM_NAME="$RA_ROM_BASENAME"
 export RETROAPP_EMULATOR_ID="$RA_EMULATOR_ID"
-export EMU_SUPPORT_PATH EMU_APP_PATH EMU_RUN_COMMAND EMU_DEPLOY_CONFIG_COMMAND
 
 # Create staging area and copy the shared bundle template into it
 RA_STAGING_DIR=$(mktemp -d -t retroapp-bundle)
 RA_BUNDLE_DIR="$RA_STAGING_DIR/${RA_APP_NAME}.app"
 rsync -a --exclude='.DS_Store' "$RA_BUNDLE_TEMPLATE_DIR/" "$RA_BUNDLE_DIR/"
+
+# Install the per-emulator launch template
+cp "$RA_LAUNCH_TEMPLATE" "$RA_BUNDLE_DIR/Contents/MacOS/launch.template"
 
 # Copy ROM into bundle
 mkdir -p "$RA_BUNDLE_DIR/Contents/Resources/Roms"
@@ -140,7 +148,7 @@ import sys, os
 src, dst = sys.argv[1], sys.argv[2]
 content = open(src).read()
 for key, val in sorted(os.environ.items(), key=lambda x: -len(x[0])):
-    if key.startswith(('RETROAPP_', 'EMU_')):
+    if key.startswith('RETROAPP_'):
         content = content.replace('${' + key + '}', val)
         content = content.replace('$' + key, val)
 content = content.replace('\\$', '$')
