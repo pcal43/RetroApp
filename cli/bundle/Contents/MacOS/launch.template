@@ -23,11 +23,13 @@ else
   exit 1
 fi
 
+echo "$SANDBOX_DIR"
+
 if ! [ -d "\$SANDBOX_DIR" ]; then
   # First launch: seed the sandboxed config dir from the bundled Config/.
   set +e
   mkdir -p "\${SANDBOX_DIR}"
-  cp -c -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${SANDBOX_DIR}"
+  cp -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${SANDBOX_DIR}"
   set -e
 fi
 
