@@ -9,6 +9,22 @@ HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/Stella/$RETROAPP_G
 # This is the subdir where Stella will actually do its thing.
 STELLA_SANDBOX_DIR="\$/Library/Application Support/Stella"
 
+ROM_PATH="\${BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
+
+STELLA_PATH=""
+for _stella_candidate in \
+  "\${BUNDLE_DIR}/Contents/MacOS/Stella.app" \
+  "/Applications/Stella.app"; do
+  if [ -d "\$_stella_candidate" ]; then
+    STELLA_PATH="\$_stella_candidate"
+    break
+  fi
+done
+if [ -z "\$STELLA_PATH" ]; then
+  echo "Error: could not find Stella.app" >&2
+  exit 1
+fi
+
 if ! [ -d "$STELLA_SANDBOX_DIR" ]; then
     # If the sanboxed config dir doesn't exist, assume this is first launch
     # and we should copy our bundled config into it.
@@ -17,4 +33,5 @@ if ! [ -d "$STELLA_SANDBOX_DIR" ]; then
     cp -c -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${STELLA_SANDBOX_DIR}"
     set -e
 fi
-HOME="\${HOME_SANDBOX_DIR}" open "\${BUNDLE_DIR}/Contents/MacOS/Stella.app" --args -nogui -fastboot -fullscreen -batch "\${BUNDLE_DIR}/Contents/Resources/$RETROAPP_ROM_NAME"
+
+HOME="\${HOME_SANDBOX_DIR}" open "\${STELLA_PATH}" --args -nogui -fastboot -fullscreen -batch  "\${ROM_PATH}"
