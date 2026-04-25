@@ -40,7 +40,7 @@ This tool works as follows:
 - If -i is specified, copy that file into the stageing directory at [stagingdir]/Contents/Resources/AppIcon.icns.  Overwrite the existing file.
 - Scan the staging dir for any files with names ending in .template.  These need to 
 be rewritten as new files without the .template extension and performing the following
-substitutions: RETROAPP_APP_NAME (the -n appName) and RETROAPP_ROM_NAME the name of the file that provided by -r (basename only)
+substitutions: RETROAPP_APP_NAME (the -n appName) and BUILD_ROM_NAME the name of the file that provided by -r (basename only)
 - Delete the .template files from the staging directory
 - Ensure the file [stagingdir]/Contents/MacOS/launch is executable (chmod +x)
 
@@ -117,8 +117,8 @@ fi
 
 # Export build-time substitution variables for the template processor
 export RETROAPP_APP_NAME="$RA_APP_NAME"
-export RETROAPP_GAME_NAME="$RA_APP_NAME"
-export RETROAPP_ROM_NAME="$RA_ROM_BASENAME"
+export BUILD_GAME_NAME="$RA_APP_NAME"
+export BUILD_ROM_NAME="$RA_ROM_BASENAME"
 export RETROAPP_EMULATOR_ID="$RA_EMULATOR_ID"
 
 # Create staging area and copy the shared bundle template into it
@@ -148,7 +148,7 @@ import sys, os
 src, dst = sys.argv[1], sys.argv[2]
 content = open(src).read()
 for key, val in sorted(os.environ.items(), key=lambda x: -len(x[0])):
-    if key.startswith('RETROAPP_'):
+    if key.startswith(('RETROAPP_', 'BUILD_')):
         content = content.replace('${' + key + '}', val)
         content = content.replace('$' + key, val)
 content = content.replace('\\$', '$')

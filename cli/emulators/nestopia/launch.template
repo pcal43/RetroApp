@@ -2,9 +2,9 @@
 set -x
 RUN_BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 
-RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/nestopia/$RETROAPP_GAME_NAME"
+RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/nestopia/$BUILD_GAME_NAME"
 RUN_SANDBOXED_CONFIG_DIR="\$RUN_HOME_SANDBOX_DIR/Library/Application Support/Bannister/Nestopia"
-RUN_ROM_PATH="\${RUN_BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
+RUN_ROM_PATH="\${RUN_BUNDLE_DIR}/Contents/Resources/Roms/$BUILD_ROM_NAME"
 
 # Find Nestopia: prefer a bundled copy, then fall back to /Applications.
 RUN_EMU_BUNDLED="\${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app

@@ -18,9 +18,3 @@ if [ -d "$CONFIG_SRC" ]; then
   mkdir -p "$BUILD_BUNDLE_DIR/Contents/Resources/Config"
   cp -r "$CONFIG_SRC/." "$BUILD_BUNDLE_DIR/Contents/Resources/Config/"
 fi'
-
-# Deploys bundled config into the per-game sandbox on first launch.
-EMU_DEPLOY_CONFIG_COMMAND='cp -r "$RUN_BUNDLE_DIR/Contents/Resources/Config/." "$RUN_SANDBOXED_CONFIG_DIR/"'
-
-# Command to launch the emulator. Uses runtime variables set by the launch script.
-EMU_RUN_COMMAND='HOME="${RUN_HOME_SANDBOX_DIR}" open "${RUN_EMU_PATH}" --args -nogui -fastboot -fullscreen -batch "${RUN_ROM_PATH}"'

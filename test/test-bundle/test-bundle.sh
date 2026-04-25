@@ -59,14 +59,14 @@ else
   fail "launch script missing or not executable"
 fi
 
-# 6. launch script contains the ROM name (RETROAPP_ROM_NAME substituted)
+# 6. launch script contains the ROM name (BUILD_ROM_NAME substituted)
 if grep -q "Halo2600.a26" "$BUNDLE/Contents/MacOS/launch" 2>/dev/null; then
   pass "launch script contains ROM name"
 else
   fail "launch script does not contain ROM name"
 fi
 
-# 7. launch script contains the app/game name (RETROAPP_GAME_NAME substituted)
+# 7. launch script contains the app/game name (BUILD_GAME_NAME substituted)
 if grep -q "Halo 2600 Test" "$BUNDLE/Contents/MacOS/launch" 2>/dev/null; then
   pass "launch script contains game name"
 else

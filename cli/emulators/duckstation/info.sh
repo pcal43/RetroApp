@@ -18,9 +18,3 @@ if [ -d "$CONFIG_SRC" ]; then
   cp -r "$CONFIG_SRC/." "$BUILD_BUNDLE_DIR/Contents/Resources/Config/"
 fi'
 
-# Deploys bundled config into the per-game sandbox on first launch.
-EMU_DEPLOY_CONFIG_COMMAND='cp -r "$RUN_BUNDLE_DIR/Contents/Resources/Config/." "$RUN_SANDBOXED_CONFIG_DIR/"'
-
-# Command to launch the emulator. Uses runtime variables set by the launch script.
-# TODO: verify correct DuckStation CLI flags
-EMU_RUN_COMMAND='HOME="${RUN_HOME_SANDBOX_DIR}" open "${RUN_EMU_PATH}" --args -batch -fastboot -fullscreen -nogui -- "${RUN_ROM_PATH}"'

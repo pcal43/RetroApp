@@ -1,10 +1,9 @@
 #!/bin/sh
 set -x
 RUN_BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
-
-RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/ares/$RETROAPP_GAME_NAME"
-RUN_SANDBOXED_CONFIG_DIR="\$RUN_HOME_SANDBOX_DIR/Library/Application Support/ares"
-RUN_ROM_PATH="\${RUN_BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
+RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/ares/${BUILD_GAME_NAME}"
+RUN_ROM_PATH="\$RUN_BUNDLE_DIR/Contents/Resources/Roms/${BUILD_ROM_NAME}"
+RUN_BUNDLED_CONFIG_DIR="\$RUN_BUNDLE_DIR/Contents/Resources/Config/"
 
 # Find ares: prefer a bundled copy, then fall back to /Applications.
 RUN_EMU_BUNDLED="\${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
@@ -17,11 +16,21 @@ else
   exit 1
 fi
 
-if ! [ -d "\$RUN_SANDBOXED_CONFIG_DIR" ]; then
+# If we have an embedded config and the sandboxed config dir doesn't exist, we must
+# be running for the first time.  Deploy the embedded config.
+#
+# Note that ares seems to resistant to the HOME manipulation that we do with
+# other emulators, so the sandboxing might not be airtight.
+#
+if [ -d "\$RUN_BUNDLED_CONFIG_DIR" ] && ! [ -d "\$RUN_SANDBOXED_CONFIG_DIR" ]; then
   set +e
-  mkdir -p "\${RUN_SANDBOXED_CONFIG_DIR}"
-  cp -r "\${RUN_BUNDLE_DIR}/Contents/Resources/Config/." "\${RUN_SANDBOXED_CONFIG_DIR}/"
+  mkdir -p "\$RUN_SANDBOXED_CONFIG_DIR"
+  cp -r "\$RUN_BUNDLED_CONFIG_DIR/*" "\$RUN_SANDBOXED_CONFIG_DIR/"
   set -e
 fi
 
-open "\${RUN_EMU_PATH}" --args --fullscreen --settings "\${RUN_SANDBOXED_CONFIG_DIR}/settings.bml" "\${RUN_ROM_PATH}"
+if [ -f "\$RUN_SANDBOXED_CONFIG_DIR/settings.bml" ]; then
+  open "\$RUN_EMU_PATH" --args --fullscreen --settings "\$RUN_SANDBOXED_CONFIG_DIR/settings.bml" "\$RUN_ROM_PATH"
+else
+  open "\$RUN_EMU_PATH" --args --fullscreen "\$RUN_ROM_PATH"
+fi
