@@ -5,7 +5,6 @@ RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/PCSX2/$BUILD_G
 RUN_SANDBOXED_CONFIG_DIR="\$RUN_HOME_SANDBOX_DIR/Library/Application\ Support/PCSX2"
 RUN_ROM_PATH="\${RUN_BUNDLE_DIR}/Contents/Resources/Roms/$BUILD_ROM_NAME"
 
-# Find Nestopia: prefer a bundled copy, then fall back to /Applications.
 RUN_EMU_BUNDLED="\${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
 if [ -e "\$RUN_EMU_BUNDLED" ]; then
   RUN_EMU_PATH="\$RUN_EMU_BUNDLED"
