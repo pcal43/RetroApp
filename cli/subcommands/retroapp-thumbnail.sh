@@ -26,11 +26,11 @@ EOF
   exit 1
 }
 
-CLI_URL_ONLY=0
+RA_URL_ONLY=0
 
 while getopts "uh" opt; do
   case $opt in
-    u) CLI_URL_ONLY=1 ;;
+    u) RA_URL_ONLY=1 ;;
     h) usage ;;
     *) usage ;;
   esac
@@ -42,33 +42,32 @@ if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
   usage
 fi
 
-CLI_SYSTEM_NAME="$1"
-CLI_GAME_NAME="$2"
+RA_SYSTEM_NAME="$1"
+RA_GAME_NAME="$2"
 
-CLI_ICON_URL=$(python3 -c "
+RA_ICON_URL=$(python3 -c "
 import sys
 from urllib.parse import quote
 system = quote(sys.argv[1], safe='()')
 game   = quote(sys.argv[2], safe='()')
 print('https://thumbnails.libretro.com/{}/Named_Boxarts/{}.png'.format(system, game))
-" "$CLI_SYSTEM_NAME" "$CLI_GAME_NAME")
+" "$RA_SYSTEM_NAME" "$RA_GAME_NAME")
 
-if [ "$CLI_URL_ONLY" = "1" ]; then
-  echo "$CLI_ICON_URL"
+if [ "$RA_URL_ONLY" = "1" ]; then
+  echo "$RA_ICON_URL"
   exit 0
 fi
 
 RA_DEFAULT_ICON="$RA_BLUEPRINTS_DIR/default-icon.png"
 
-CLI_TEMP_PNG=$(mktemp /tmp/retroapp-icon-XXXXXX)
-mv "$CLI_TEMP_PNG" "${CLI_TEMP_PNG}.png"
-CLI_TEMP_PNG="${CLI_TEMP_PNG}.png"
+RA_TEMP_PNG=$(mktemp /tmp/retroapp-icon-XXXXXX)
+mv "$RA_TEMP_PNG" "${RA_TEMP_PNG}.png"
+RA_TEMP_PNG="${RA_TEMP_PNG}.png"
 
-if curl -fsSL -o "$CLI_TEMP_PNG" "$CLI_ICON_URL" 2>/dev/null; then
-  echo "$CLI_TEMP_PNG"
-  exit 0
+echo "Downloading thumbnail from $$RA_TEMP_PNG" >&2
+if curl -fsSL -o "$RA_TEMP_PNG" "$RA_ICON_URL" 2>/dev/null; then
+  echo "$RA_TEMP_PNG"
 else
-  rm -f "$CLI_TEMP_PNG"
-  echo "$RA_DEFAULT_ICON"
+  echo "Download failed, default icon will be used" >&2
   exit 1
 fi

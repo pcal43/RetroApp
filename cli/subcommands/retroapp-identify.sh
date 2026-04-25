@@ -39,10 +39,10 @@ if [ -z "${1:-}" ]; then
   usage
 fi
 
-CLI_BINARY_PATH="$1"
+RA_BINARY_PATH="$1"
 
-if [ ! -f "$CLI_BINARY_PATH" ]; then
-  echo "Error: File not found: $CLI_BINARY_PATH" >&2
+if [ ! -f "$RA_BINARY_PATH" ]; then
+  echo "Error: File not found: $RA_BINARY_PATH" >&2
   exit 1
 fi
 
@@ -78,7 +78,7 @@ RA_HASHES_DIR="$RA_SCRIPT_DIR/hashes"
 PNG_MAGIC=$(python3 -c "
 import sys
 print(open(sys.argv[1], 'rb').read(8).hex().upper())
-" "$CLI_BINARY_PATH")
+" "$RA_BINARY_PATH")
 
 if [ "$PNG_MAGIC" = "89504E470D0A1A0A" ]; then
   echo "png"
@@ -86,14 +86,14 @@ if [ "$PNG_MAGIC" = "89504E470D0A1A0A" ]; then
 fi
 
 # Compute CRC32 as uppercase 8-character hex (matches .dat file format)
-CLI_CRC=$(python3 -c "
+RA_CRC=$(python3 -c "
 import sys, binascii
 data = open(sys.argv[1], 'rb').read()
 print(format(binascii.crc32(data) & 0xffffffff, '08X'))
-" "$CLI_BINARY_PATH")
+" "$RA_BINARY_PATH")
 
 # First pass: hash the full file
-if search_crc "$CLI_CRC"; then
+if search_crc "$RA_CRC"; then
   exit 0
 fi
 
@@ -101,15 +101,15 @@ fi
 INES_MAGIC=$(python3 -c "
 import sys
 print(open(sys.argv[1], 'rb').read(4).hex().upper())
-" "$CLI_BINARY_PATH")
+" "$RA_BINARY_PATH")
 
 if [ "$INES_MAGIC" = "4E45531A" ]; then
-  CLI_CRC_HEADLESS=$(python3 -c "
+  RA_CRC_HEADLESS=$(python3 -c "
 import sys, binascii
 data = open(sys.argv[1], 'rb').read()[16:]
 print(format(binascii.crc32(data) & 0xffffffff, '08X'))
-" "$CLI_BINARY_PATH")
-  if search_crc "$CLI_CRC_HEADLESS"; then
+" "$RA_BINARY_PATH")
+  if search_crc "$RA_CRC_HEADLESS"; then
     exit 0
   fi
 fi

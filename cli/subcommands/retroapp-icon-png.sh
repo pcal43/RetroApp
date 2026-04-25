@@ -35,22 +35,22 @@ if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
   usage
 fi
 
-CLI_SYSTEM_NAME="$1"
-CLI_GAME_NAME="$2"
+RA_SYSTEM_NAME="$1"
+RA_GAME_NAME="$2"
 
 RA_DEFAULT_ICON="$RA_BLUEPRINTS_DIR/default-icon.png"
 
-CLI_ICON_URL=$("$RA_RETROAPP" icon-url "$CLI_SYSTEM_NAME" "$CLI_GAME_NAME")
+RA_ICON_URL=$("$RA_RETROAPP" icon-url "$RA_SYSTEM_NAME" "$RA_GAME_NAME")
 
-CLI_TEMP_PNG=$(mktemp /tmp/retroapp-icon-XXXXXX)
-mv "$CLI_TEMP_PNG" "${CLI_TEMP_PNG}.png"
-CLI_TEMP_PNG="${CLI_TEMP_PNG}.png"
+RA_TEMP_PNG=$(mktemp /tmp/retroapp-icon-XXXXXX)
+mv "$RA_TEMP_PNG" "${RA_TEMP_PNG}.png"
+RA_TEMP_PNG="${RA_TEMP_PNG}.png"
 
-if curl -fsSL -o "$CLI_TEMP_PNG" "$CLI_ICON_URL" 2>/dev/null; then
-  echo "$CLI_TEMP_PNG"
+if curl -fsSL -o "$RA_TEMP_PNG" "$RA_ICON_URL" 2>/dev/null; then
+  echo "$RA_TEMP_PNG"
   exit 0
 else
-  rm -f "$CLI_TEMP_PNG"
+  rm -f "$RA_TEMP_PNG"
   echo "$RA_DEFAULT_ICON"
   exit 1
 fi

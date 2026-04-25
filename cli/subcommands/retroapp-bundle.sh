@@ -56,68 +56,68 @@ for an example of the kind of template we will be processing.
 
 while getopts "n:e:r:i:o:h" opt; do
   case $opt in
-    n) CLI_APP_NAME="$OPTARG" ;;
-    e) CLI_EMULATOR_ID="$OPTARG" ;;
-    r) CLI_ROM_PATH="$OPTARG" ;;
-    i) CLI_ICNS_PATH="$OPTARG" ;;
-    o) CLI_OUTPUT_DIR="$OPTARG" ;;
+    n) RA_APP_NAME="$OPTARG" ;;
+    e) RA_EMULATOR_ID="$OPTARG" ;;
+    r) RA_ROM_PATH="$OPTARG" ;;
+    i) RA_ICNS_PATH="$OPTARG" ;;
+    o) RA_OUTPUT_DIR="$OPTARG" ;;
     h) usage ;;
     *) usage ;;
   esac
 done
 shift $((OPTIND - 1))
 
-if [ -z "${CLI_APP_NAME:-}" ]; then
+if [ -z "${RA_APP_NAME:-}" ]; then
   echo "Error: -n appName is required." >&2
   usage
 fi
-if [ -z "${CLI_EMULATOR_ID:-}" ]; then
+if [ -z "${RA_EMULATOR_ID:-}" ]; then
   echo "Error: -e emulatorId is required." >&2
   usage
 fi
-if [ -z "${CLI_ROM_PATH:-}" ]; then
+if [ -z "${RA_ROM_PATH:-}" ]; then
   echo "Error: -r romPath is required." >&2
   usage
 fi
-if [ ! -f "$CLI_ROM_PATH" ]; then
-  echo "Error: ROM file not found: $CLI_ROM_PATH" >&2
+if [ ! -f "$RA_ROM_PATH" ]; then
+  echo "Error: ROM file not found: $RA_ROM_PATH" >&2
   exit 1
 fi
-if [ -n "${CLI_ICNS_PATH:-}" ] && [ ! -f "$CLI_ICNS_PATH" ]; then
-  echo "Error: icon file not found: $CLI_ICNS_PATH" >&2
-  exit 1
-fi
-
-CLI_TEMPLATE_DIR="$RA_SCRIPT_DIR/templates/$CLI_EMULATOR_ID"
-if [ ! -d "$CLI_TEMPLATE_DIR/bundle" ]; then
-  echo "Error: no bundle template found for emulator '$CLI_EMULATOR_ID' (looked in $CLI_TEMPLATE_DIR/bundle)" >&2
+if [ -n "${RA_ICNS_PATH:-}" ] && [ ! -f "$RA_ICNS_PATH" ]; then
+  echo "Error: icon file not found: $RA_ICNS_PATH" >&2
   exit 1
 fi
 
-CLI_ROM_BASENAME=$(basename "$CLI_ROM_PATH")
-if [ -n "${CLI_OUTPUT_DIR:-}" ]; then
-  CLI_OUTPUT_PATH="${CLI_OUTPUT_DIR}/${CLI_APP_NAME}.app"
+RA_TEMPLATE_DIR="$RA_SCRIPT_DIR/templates/$RA_EMULATOR_ID"
+if [ ! -d "$RA_TEMPLATE_DIR/bundle" ]; then
+  echo "Error: no bundle template found for emulator '$RA_EMULATOR_ID' (looked in $RA_TEMPLATE_DIR/bundle)" >&2
+  exit 1
+fi
+
+RA_ROM_BASENAME=$(basename "$RA_ROM_PATH")
+if [ -n "${RA_OUTPUT_DIR:-}" ]; then
+  RA_OUTPUT_PATH="${RA_OUTPUT_DIR}/${RA_APP_NAME}.app"
 else
-  CLI_OUTPUT_PATH="$(dirname "$CLI_ROM_PATH")/${CLI_APP_NAME}.app"
+  RA_OUTPUT_PATH="$(dirname "$RA_ROM_PATH")/${RA_APP_NAME}.app"
 fi
 
 # Create staging area and copy template bundle into it
-CLI_STAGING_DIR=$(mktemp -d -t retroapp-bundle)
-CLI_BUNDLE_DIR="$CLI_STAGING_DIR/${CLI_APP_NAME}.app"
-rsync -a --exclude='.DS_Store' "$CLI_TEMPLATE_DIR/bundle/" "$CLI_BUNDLE_DIR/"
+RA_STAGING_DIR=$(mktemp -d -t retroapp-bundle)
+RA_BUNDLE_DIR="$RA_STAGING_DIR/${RA_APP_NAME}.app"
+rsync -a --exclude='.DS_Store' "$RA_TEMPLATE_DIR/bundle/" "$RA_BUNDLE_DIR/"
 
 # Copy ROM into bundle
-mkdir -p "$CLI_BUNDLE_DIR/Contents/Resources/Roms"
-cp "$CLI_ROM_PATH" "$CLI_BUNDLE_DIR/Contents/Resources/Roms/"
+mkdir -p "$RA_BUNDLE_DIR/Contents/Resources/Roms"
+cp "$RA_ROM_PATH" "$RA_BUNDLE_DIR/Contents/Resources/Roms/"
 
 # Copy icns if provided
-if [ -n "${CLI_ICNS_PATH:-}" ]; then
-  cp "$CLI_ICNS_PATH" "$CLI_BUNDLE_DIR/Contents/Resources/AppIcon.icns"
+if [ -n "${RA_ICNS_PATH:-}" ]; then
+  cp "$RA_ICNS_PATH" "$RA_BUNDLE_DIR/Contents/Resources/AppIcon.icns"
 fi
 
 # Write a Python processor to a temp file to safely handle $ substitution
-CLI_PROCESSOR=$(mktemp /tmp/retroapp-processor-XXXXXX)
-cat > "$CLI_PROCESSOR" << 'PYEOF'
+RA_PROCESSOR=$(mktemp /tmp/retroapp-processor-XXXXXX)
+cat > "$RA_PROCESSOR" << 'PYEOF'
 import sys
 app_name = sys.argv[1]
 rom_name = sys.argv[2]
@@ -134,19 +134,19 @@ open(dst, 'w').write(content)
 PYEOF
 
 # Process all .template files
-find "$CLI_BUNDLE_DIR" -name "*.template" | while IFS= read -r template_file; do
+find "$RA_BUNDLE_DIR" -name "*.template" | while IFS= read -r template_file; do
   output_file="${template_file%.template}"
-  python3 "$CLI_PROCESSOR" "$CLI_APP_NAME" "$CLI_ROM_BASENAME" "$template_file" "$output_file"
+  python3 "$RA_PROCESSOR" "$RA_APP_NAME" "$RA_ROM_BASENAME" "$template_file" "$output_file"
   rm "$template_file"
 done
 
-rm -f "$CLI_PROCESSOR"
+rm -f "$RA_PROCESSOR"
 
 # Ensure the launch script is executable
-chmod +x "$CLI_BUNDLE_DIR/Contents/MacOS/launch"
+chmod +x "$RA_BUNDLE_DIR/Contents/MacOS/launch"
 
 # Move finished bundle to output location
-mv "$CLI_BUNDLE_DIR" "$CLI_OUTPUT_PATH"
-rm -rf "$CLI_STAGING_DIR"
+mv "$RA_BUNDLE_DIR" "$RA_OUTPUT_PATH"
+rm -rf "$RA_STAGING_DIR"
 
-echo "Created $CLI_OUTPUT_PATH"
+echo "Created $RA_OUTPUT_PATH"

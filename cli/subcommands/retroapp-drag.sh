@@ -122,25 +122,36 @@ fi
 # extract just the first path component as the emulator id.
 DRAG_EMULATOR_ID=$(tr -d '[:space:]' < "$DRAG_EMU_FILE" | cut -d'/' -f1)
 
-# Get an icon PNG if none was provided
+# If no icon PNG was provided, try to download a thumbnail
 if [ -z "$DRAG_ICON_PNG" ]; then
-  echo "Getting icon..." >&2
-  DRAG_ICON_PNG=$("$RA_RETROAPP" thumbnail "$DRAG_ROM_SYSTEM" "$DRAG_GAME_NAME") || true
+  echo "Downloading thumbnail..." >&2
+  DRAG_ICON_PNG=$("$RA_RETROAPP" thumbnail "$DRAG_ROM_SYSTEM" "$DRAG_GAME_NAME") || DRAG_ICON_PNG=""
 fi
 
-# Convert PNG to .icns
-echo "Building icns" >&2
-
-DRAG_ICNS=$(mktemp /tmp/retroapp-icon-XXXXXX)
-mv "$DRAG_ICNS" "${DRAG_ICNS}.icns"
-DRAG_ICNS="${DRAG_ICNS}.icns"
-"$RA_RETROAPP" icns "$DRAG_ICON_PNG" "$DRAG_ICNS"
+# Convert PNG to .icns if we have one; otherwise the bundle template's default icon will be used
+DRAG_ICNS=""
+if [ -n "$DRAG_ICON_PNG" ]; then
+  echo "Building icns..." >&2
+  DRAG_ICNS=$(mktemp /tmp/retroapp-icon-XXXXXX)
+  mv "$DRAG_ICNS" "${DRAG_ICNS}.icns"
+  DRAG_ICNS="${DRAG_ICNS}.icns"
+  "$RA_RETROAPP" icns "$DRAG_ICON_PNG" "$DRAG_ICNS"
+else
+  echo "No icon available; using default from template." >&2
+fi
 
 # Build the bundle
-"$RA_RETROAPP" bundle \
-  -n "$DRAG_GAME_NAME" \
-  -e "$DRAG_EMULATOR_ID" \
-  -r "$DRAG_ROM_PATH" \
-  -i "$DRAG_ICNS"
+if [ -n "$DRAG_ICNS" ]; then
+  "$RA_RETROAPP" bundle \
+    -n "$DRAG_GAME_NAME" \
+    -e "$DRAG_EMULATOR_ID" \
+    -r "$DRAG_ROM_PATH" \
+    -i "$DRAG_ICNS"
+else
+  "$RA_RETROAPP" bundle \
+    -n "$DRAG_GAME_NAME" \
+    -e "$DRAG_EMULATOR_ID" \
+    -r "$DRAG_ROM_PATH"
+fi
 
 rm -f "$DRAG_ICNS"

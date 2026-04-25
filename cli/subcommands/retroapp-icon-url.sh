@@ -35,8 +35,8 @@ if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
   usage
 fi
 
-CLI_SYSTEM_NAME="$1"
-CLI_GAME_NAME="$2"
+RA_SYSTEM_NAME="$1"
+RA_GAME_NAME="$2"
 
 python3 -c "
 import sys
@@ -44,4 +44,4 @@ from urllib.parse import quote
 system = quote(sys.argv[1], safe='()')
 game   = quote(sys.argv[2], safe='()')
 print('https://thumbnails.libretro.com/{}/Named_Boxarts/{}.png'.format(system, game))
-" "$CLI_SYSTEM_NAME" "$CLI_GAME_NAME"
+" "$RA_SYSTEM_NAME" "$RA_GAME_NAME"

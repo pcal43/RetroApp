@@ -46,7 +46,7 @@ findFirst() {
             fi
         fi
     done
-    echo "Error: could not find ${CLI_BLUEPRINT:-} on your machine.  Please install it or specify its location manually."
+    echo "Error: could not find ${RA_BLUEPRINT:-} on your machine.  Please install it or specify its location manually."
     exit "$EXIT_EMULATOR_NOT_FOUND"
 }
 
@@ -59,13 +59,13 @@ while getopts "he:" opt; do
 done
 shift $((OPTIND - 1))
 
-CLI_BLUEPRINT="$1"
+RA_BLUEPRINT="$1"
 
-if [ -z "${CLI_BLUEPRINT:-}" ]; then
+if [ -z "${RA_BLUEPRINT:-}" ]; then
   echo "A blueprint must be specified.  Must be one of $($RA_RETROAPP list-blueprints)" >&2
   usage
 else
-  if ! [ -d "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT" ]; then
+  if ! [ -d "$RA_BLUEPRINTS_DIR/$RA_BLUEPRINT" ]; then
     echo "Invalid blueprint.  Valid values are $($RA_RETROAPP list-blueprints)"
     usage
   fi
@@ -74,7 +74,7 @@ fi
 
 # shellcheck disable=SC1090
 # load the BP_xxx metadata for the chosen blueprint
-. "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/blueprint-info.sh"
+. "$RA_BLUEPRINTS_DIR/$RA_BLUEPRINT/blueprint-info.sh"
 
 # shellcheck disable=SC2086
 findFirst $BP_EMULATOR_SEARCH_PATH

@@ -5,6 +5,6 @@ usage() {
   exit 1
 }
 
-CLI_BLUEPRINT="${1}"
+RA_BLUEPRINT="${1}"
 
-cat "$RA_BLUEPRINTS_DIR/$CLI_BLUEPRINT/blueprint-info.sh" | grep -v "^\s*#" | grep -v "^\s*$"
+cat "$RA_BLUEPRINTS_DIR/$RA_BLUEPRINT/blueprint-info.sh" | grep -v "^\s*#" | grep -v "^\s*$"
