@@ -127,6 +127,10 @@ while IFS= read -r _raw_file; do
     _subdir=$(mktemp -d "$DRAG_EXTRACT_DIR/XXXXXX")
     echo "Extracting archive: $_raw_file" >&2
     if _extract_archive "$_raw_file" "$_subdir"; then
+      # If output dir is not set, set it to the parent of the archive (even if found inside a dragged folder)
+      if [ -z "$DRAG_OUTPUT_DIR" ]; then
+        DRAG_OUTPUT_DIR=$(dirname "$_raw_file")
+      fi
       find "$_subdir" -type f >> "$DRAG_FILE_LIST"
     else
       echo "WARNING: could not extract archive, skipping: $_raw_file" >&2
