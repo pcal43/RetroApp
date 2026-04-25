@@ -6,9 +6,8 @@ EMU_SUPPORT_PATH="Application Support/Stella"
 # ~/Library/Application Support/RetroApp/$EMU_SANDBOX_HOME/$GAME_NAME
 EMU_SANDBOX_HOME="Stella"
 
-# Colon-separated lsit of places to search for the emulator application.
-# This will be evaluated at runtime by the launcher.
-EMU_APP_SEARCH_PATH="\${BUNDLE_DIR}/Stella.app:/Applications/Stella.app"
+# Direct path to the emulator application.
+EMU_APP_PATH="/Applications/Stella.app"
 
 # Options that will be passed to the emulator.
 EMU_OPTIONS="-fullscreen 1"
