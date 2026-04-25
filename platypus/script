@@ -2,6 +2,8 @@
 
 # platypus copies this file into Resources and names it 'script'
 
+ /usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
+
 show_error() {
   local text="${1:-An unknown error occurred.}"
 
