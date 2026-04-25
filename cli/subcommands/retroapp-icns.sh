@@ -55,7 +55,7 @@ for size in $SIZES; do
   # If not square, pad to square using ImageMagick (prefer 'magick convert' if available)
   if [ "$TARGET_W" -ne "$size" ] || [ "$TARGET_H" -ne "$size" ]; then
     if command -v magick >/dev/null 2>&1; then
-      magick convert "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
+      magick "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
     elif command -v convert >/dev/null 2>&1; then
       convert "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
     else
