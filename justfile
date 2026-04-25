@@ -24,6 +24,7 @@ build version="":
       --interpreter "/bin/zsh" \
       --app-icon "{{root_dir}}/AppIcon.icns" \
       --bundle-identifier "net.pcal.RetroAppMaker" \
+      --droppable \
       --bundled-file "{{ui_dir}}|{{cli_dir}}|{{root_dir}}/version" \
       --overwrite \
       "{{platypus_dir}}/script" \
