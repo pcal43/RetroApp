@@ -110,8 +110,8 @@ while IFS= read -r DRAG_FILE; do
         DRAG_ROM_SYSTEM=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '2p')
         DRAG_GAME_NAME=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '3p')
         echo "Will use this for the ROM file: $DRAG_FILE" >&2
-        echo "System is $DRAG_ROM_SYSTEM" >&2
-        echo "Game is $DRAG_GAME_NAME" >&2
+        echo "  System is $DRAG_ROM_SYSTEM" >&2
+        echo "  Game is $DRAG_GAME_NAME" >&2
       fi
       ;;
     *)
@@ -155,7 +155,7 @@ else
   echo "No icon available; using default from template." >&2
 fi
 
-# Build the bundle
+echo "Building application bundle."  >&2
 if [ -n "$DRAG_ICNS" ]; then
   "$RA_RETROAPP" bundle \
     -n "$DRAG_GAME_NAME" \
