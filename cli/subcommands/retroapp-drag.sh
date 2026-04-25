@@ -112,8 +112,8 @@ if [ -z "$DRAG_ROM_PATH" ]; then
   exit 1
 fi
 
-# Look up emulator id from cli/emulators/<system name>
-DRAG_EMU_FILE="$RA_SCRIPT_DIR/emulators/${DRAG_ROM_SYSTEM}"
+# Look up emulator id from cli/systems/<system name>
+DRAG_EMU_FILE="$RA_SCRIPT_DIR/systems/${DRAG_ROM_SYSTEM}"
 if [ ! -f "$DRAG_EMU_FILE" ]; then
   echo "Error: emulator not supported for system '$DRAG_ROM_SYSTEM'" >&2
   exit 1

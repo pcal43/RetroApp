@@ -4,19 +4,19 @@ BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 
 # Stella has a basedir option but it doesn't work on MacOS.  So we force sandboxing of
 # its configuration by manipulating $HOME.
-HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/DuckStation/$RETROAPP_GAME_NAME"
+HOME_SANDBOX_DIR="\$HOME/$EMU_SUPPORT_PATH"
 
 # This is the subdir where the emulator will actually do its thing.
-EMU_SANDBOX_DIR="\$HOME_SANDBOX_DIR/Library/Application Support/DuckStation/"
+SANDBOX_DIR="\$HOME_SANDBOX_DIR/$EMU_SUPPORT_PATH"
 
 ROM_PATH="\${BUNDLE_DIR}/Contents/Resources/Roms/$RETROAPP_ROM_NAME"
 
 EMU_PATH=""
-for EMU_CANDIDATE in \
-  "\${BUNDLE_DIR}/Contents/MacOS/DuckStation.app" "/Applications/DuckStation.app";
+for CANDIDATE in \
+  $EMU_APP_SEARCH_PATH ;
   do
-  if [ -e "\$EMU_CANDIDATE" ]; then
-    EMU_PATH="\$EMU_CANDIDATE"
+  if [ -e "\$CANDIDATE" ]; then
+    EMU_PATH="\$CANDIDATE"
     break
   fi
 done
@@ -25,13 +25,13 @@ if [ -z "\$EMU_PATH" ]; then
   exit 1
 fi
 
-if ! [ -d "$EMU_SANDBOX_DIR" ]; then
+if ! [ -d "$SANDBOX_DIR" ]; then
     # If the sanboxed config dir doesn't exist, assume this is first launch
     # and we should copy our bundled config into it.
     set +e
-    mkdir -p "\${EMU_SANDBOX_DIR}"
-    cp -c -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${EMU_SANDBOX_DIR}"
+    mkdir -p "\${SANDBOX_DIR}"
+    cp -c -r "\${BUNDLE_DIR}/Contents/Resources/Config/"* "\${SANDBOX_DIR}"
     set -e
 fi
 
-HOME="\${HOME_SANDBOX_DIR}" open "\${EMU_PATH}" --args -batch -fastboot -fullscreen -nogui -- "\${ROM_PATH}"
+HOME="\${HOME_SANDBOX_DIR}" open "\${EMU_PATH}" --args ${EMU_OPTIONS} "\${ROM_PATH}"
