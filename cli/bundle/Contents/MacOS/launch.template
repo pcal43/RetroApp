@@ -3,7 +3,7 @@ set -x
 BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
 
 # HOME is sandboxed so the emulator stores its config per-game under RetroApp/
-HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/$EMU_SANDBOX_HOME/$RETROAPP_GAME_NAME"
+HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/$RETROAPP_EMULATOR_ID/$RETROAPP_GAME_NAME"
 
 # The subdir where the emulator will read/write its config.
 SANDBOX_DIR="\$HOME_SANDBOX_DIR/Library/$EMU_SUPPORT_PATH"

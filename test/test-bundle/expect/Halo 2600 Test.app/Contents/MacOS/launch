@@ -3,7 +3,7 @@ set -x
 BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 
 # HOME is sandboxed so the emulator stores its config per-game under RetroApp/
-HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/Stella/Halo 2600 Test"
+HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/stella/Halo 2600 Test"
 
 # The subdir where the emulator will read/write its config.
 SANDBOX_DIR="$HOME_SANDBOX_DIR/Library/Application Support/Stella"
@@ -23,11 +23,13 @@ else
   exit 1
 fi
 
+echo "$SANDBOX_DIR"
+
 if ! [ -d "$SANDBOX_DIR" ]; then
   # First launch: seed the sandboxed config dir from the bundled Config/.
   set +e
   mkdir -p "${SANDBOX_DIR}"
-  cp -c -r "${BUNDLE_DIR}/Contents/Resources/Config/"* "${SANDBOX_DIR}"
+  cp -r "${BUNDLE_DIR}/Contents/Resources/Config/"* "${SANDBOX_DIR}"
   set -e
 fi
 

@@ -113,7 +113,8 @@ fi
 export RETROAPP_APP_NAME="$RA_APP_NAME"
 export RETROAPP_GAME_NAME="$RA_APP_NAME"
 export RETROAPP_ROM_NAME="$RA_ROM_BASENAME"
-export EMU_SANDBOX_HOME EMU_SUPPORT_PATH EMU_APP_PATH EMU_OPTIONS
+export RETROAPP_EMULATOR_ID="$RA_EMULATOR_ID"
+export EMU_SUPPORT_PATH EMU_APP_PATH EMU_OPTIONS
 
 # Create staging area and copy the shared bundle template into it
 RA_STAGING_DIR=$(mktemp -d -t retroapp-bundle)
