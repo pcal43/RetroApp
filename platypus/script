@@ -19,6 +19,8 @@ EOF
 
 /usr/bin/osascript -e "display alert \"FOO\" message \"BAR\""
 
+show_error "hey there!"
+
 print "OK!" > "/tmp/raoutput.txt"
 
 print "OK!" > "$HOME/raoutput.txt"
