@@ -52,9 +52,11 @@ for size in $SIZES; do
     echo "Error resizing image to ${TARGET_W}x${TARGET_H}" >&2
     exit 1
   fi
-  # If not square, pad to square using ImageMagick convert (if available)
+  # If not square, pad to square using ImageMagick (prefer 'magick convert' if available)
   if [ "$TARGET_W" -ne "$size" ] || [ "$TARGET_H" -ne "$size" ]; then
-    if command -v convert >/dev/null 2>&1; then
+    if command -v magick >/dev/null 2>&1; then
+      magick convert "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
+    elif command -v convert >/dev/null 2>&1; then
       convert "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
     else
       echo "WARNING: ImageMagick 'convert' not found, icon will not be square for size $size" >&2
