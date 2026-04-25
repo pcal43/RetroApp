@@ -20,7 +20,7 @@ build version="":
       --name RetroAppMaker \
       --app-version "$VERSION" \
       --interface-type "Text Window" \
-      --interpreter "/bin/zsh" \
+      --interpreter "/bin/bash" \
       --app-icon "{{root_dir}}/AppIcon.icns" \
       --bundle-identifier "net.pcal.RetroAppMaker" \
       --droppable \
