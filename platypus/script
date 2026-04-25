@@ -9,7 +9,7 @@ show_error() {
   local text="${1:-An unknown error occurred.}"
 
   /usr/bin/osascript <<EOF
-display dialog ${(qq)text} ¬
+display dialog ${(qqq)text} ¬
   with title "RetroApp Error" ¬
   buttons {"OK"} ¬
   default button "OK" ¬
