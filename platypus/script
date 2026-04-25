@@ -8,10 +8,6 @@ echo "Running RetroAppMaker!"
 
 RESOURCES_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
-print "command: $RESOURCES_DIR/cli/retroapp drag" >> "$HOME/raoutput.txt"
-print "args: $@" >> "$HOME/raoutput.txt"
-print "" >> "$HOME/raoutput.txt"
-
 output=$(/bin/zsh -l "$RESOURCES_DIR/cli/retroapp" drag "$@" 2>&1)
 exit_code=$?
 

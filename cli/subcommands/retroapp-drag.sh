@@ -70,7 +70,9 @@ DRAG_GAME_NAME=""
 DRAG_ICON_PNG=""
 
 # Iterate through all arguments, identify each file
+echo "Checking files:"
 for DRAG_FILE in "$@"; do
+  echo "$DRAG_FILE"
   if [ ! -f "$DRAG_FILE" ]; then
     echo "Warning: file not found, skipping: $DRAG_FILE" >&2
     continue
@@ -84,6 +86,7 @@ for DRAG_FILE in "$@"; do
       if [ -n "$DRAG_ICON_PNG" ]; then
         echo "Warning: multiple PNG files provided; ignoring $DRAG_FILE" >&2
       else
+        echo "...png file.  Will use this as an icon."
         DRAG_ICON_PNG="$DRAG_FILE"
       fi
       ;;
@@ -94,6 +97,7 @@ for DRAG_FILE in "$@"; do
         DRAG_ROM_PATH="$DRAG_FILE"
         DRAG_ROM_SYSTEM=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '2p')
         DRAG_GAME_NAME=$(printf '%s' "$DRAG_IDENTIFY" | sed -n '3p')
+        echo "...rom file.  System is $DRAG_ROM_SYSTEM. Game is $DRAG_GAME_NAME"
       fi
       ;;
     *)
