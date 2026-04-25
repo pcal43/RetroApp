@@ -10,10 +10,12 @@
 #
 EMU_EMULATOR_PATH=$(find /Applications -maxdepth 1 -name 'PCSX2*.app' -type d 2>/dev/null | sort | tail -1)
 if ! [ -n "$EMU_EMULATOR_PATH" ]; then
-  bundleError 'Could not find PCSX2 (in /Applications/PCSX2*.app).  
-   Please download it from https://pcsx2.net/downloads and install it.  Be sure
-   to install BIOS files as well.
-  '
+    echo '
+FAILED
+
+Could not find PCSX2 (in /Applications/PCSX2*.app).
+Please download it from https://pcsx2.net/downloads and install it.
+Be sure to install BIOS files as well.' >&2
   exit 1
 fi
 
