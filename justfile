@@ -19,8 +19,8 @@ build version="":
     platypus \
       --name RetroAppMaker \
       --app-version "$VERSION" \
-      --interface-type "None" \
-      --interpreter "/bin/sh" \
+      --interface-type "Text Window" \
+      --interpreter "/bin/zsh" \
       --app-icon "{{root_dir}}/AppIcon.icns" \
       --bundle-identifier "net.pcal.RetroAppMaker" \
       --droppable \
