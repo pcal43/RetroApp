@@ -2,14 +2,18 @@
 
 <img src="etc/icon.png" alt="RetroApp" width="384">
 
-**RetroApp** makes it easy to assemble standalone MacOS desktop 
-applications for running retro games. 
+**RetroApp** creates standalone MacOS desktop applications from 
+retro game rom files.  Drag-and-drop a rom, out pops an app!
 
-You just give it 
-* a ROM
-* an emulator
-* BIOS and config files 
-* an icon image
+
+
+## How to Use RetroApp
+
+* Drag a rom file onto RetroApp
+* RetroApp creates a standlone launcher app
+* Run the launcher, play your game
+
+
 
 ![Rom Select Screen](etc/screenshot-rom-select.png)
 
@@ -47,10 +51,11 @@ Steam at a desktop app.
 aren't technically-savvy.
 
 
-* **You want to separate config folders for each game.**  A RetroApp can 
-optionally be configured to use its own directory under `Library/Application Support`.
+* **You want to separate config folders for each game.**  By default, RetroApps
+are run in a sandboxed configuration directory - they have their own configuration
+that is completely separate from other games using the same emulator.
 This can be helpful if you want cleanly-separated settings and save files 
-for each game.  *Note that this is not possible with all emulators*.
+for each game. 
 
 
 * You just think **having a bunch of Playstation discs in your MacOS Dock looks cool.**
