@@ -11,7 +11,7 @@ ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED',
   `RUN_EMU_PATH=$(find /Applications -maxdepth 1 -name 'PCSX2*.app' -type d 2>/dev/null | sort | tail -1)'
 )
 
-if [ -z "$RUN_EMU_PATH" ] || ! [ -e "$RUN_EMU_PATH" ]; then
+if ! [ -e "$RUN_EMU_PATH" ]; then
   echo "Error: PCSX2 not found at $RUN_EMU_PATH." >&2
   echo 'Download from https://pcsx2.net/downloads' >&2
   exit 1

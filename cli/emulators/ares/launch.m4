@@ -10,7 +10,7 @@ ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED',
   `RUN_EMU_PATH="/Applications/ares.app"'
 )
 
-if ! [ -e "$RUN_EMU_BUNDLED" ]; then
+if ! [ -e "$RUN_EMU_PATH" ]; then
   echo "ERROR ares not found at $RUN_EMU_PATH." >&2
   echo 'Download from https://ares-emu.net/download" >&2
   exit 1
