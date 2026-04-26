@@ -22,7 +22,7 @@ cp "$BUILD_ROM_PATH" "$BUILD_BUNDLE_DIR/Contents/Resources/Roms/"
 #
 # Optionally embed the emulator config
 #
-if [ "${BUILD_BUNDLED_CONFIG_ENABLED:-true}" = true ]; then
+if [ "${BUILD_SANDBOXED_CONFIG_ENABLED:-true}" = true ]; then
   BUILD_CONFIG_SRC="$HOME/Library/Application Support/DuckStation"
   if [ -d "$BUILD_CONFIG_SRC" ]; then
     echo "Bundling emulator config from $BUILD_CONFIG_SRC" >&2

@@ -28,7 +28,7 @@ cp "$BUILD_ROM_PATH" "$BUILD_BUNDLE_DIR/Contents/Resources/Roms/"
 #
 # Optionally embed the emulator config (recommended)
 #
-if [ "${BUILD_BUNDLED_CONFIG_ENABLED:-true}" = true ]; then
+if [ "${BUILD_SANDBOXED_CONFIG_ENABLED:-true}" = true ]; then
   EMU_CONFIG_SRC="$HOME/Library/Application Support/PCSX2"
   if [ -d "$EMU_CONFIG_SRC" ]; then
     echo "Bundling emulator config from $EMU_CONFIG_SRC" >&2

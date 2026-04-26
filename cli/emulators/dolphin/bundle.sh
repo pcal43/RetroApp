@@ -1,15 +1,16 @@
 #!/bin/zsh
 
 #
-# Builds a MacOS bundle to launch a game with Stella.
+# Builds a MacOS bundle to launch a game with ares.
 #
 
 #
-# Make sure they have installed Stella.
+# Make sure they have installed ares.
 #
-EMU_EMULATOR_PATH="/Applications/Stella.app"
+EMU_EMULATOR_PATH="/Applications/Dolphin.app"
 if [ ! -d "$EMU_EMULATOR_PATH" ]; then
-  bundleError 'Could not find Stella (at /Applications/Stella.app). Please download it from https://stella-emu.github.io and install it.'
+  echo "ERROR Could not find Dolphin at $EMU_EMULATOR_PATH." >&2
+  echo "Please download it at https://dolphin-emu.org/download" >&2
   exit 1
 fi
 
@@ -23,11 +24,11 @@ cp "$BUILD_ROM_PATH" "$BUILD_BUNDLE_DIR/Contents/Resources/Roms/"
 # Optionally embed the emulator config
 #
 if [ "${BUILD_SANDBOXED_CONFIG_ENABLED:-true}" = true ]; then
-  BUILD_CONFIG_SRC="$HOME/Library/Application Support/Stella"
+  BUILD_CONFIG_SRC="$HOME/Library/Application Support/Dolphin"
   if [ -d "$BUILD_CONFIG_SRC" ]; then
     echo "Bundling emulator config from $BUILD_CONFIG_SRC" >&2
     mkdir -p "$BUILD_BUNDLE_DIR/Contents/Resources/Config"
-    cp -r "$BUILD_CONFIG_SRC/." "$BUILD_BUNDLE_DIR/Contents/Resources/Config/"
+    rsync -a --exclude='Cache' --exclude='SaveStates' --exclude='ScreenShots' "$BUILD_CONFIG_SRC/" "$BUILD_BUNDLE_DIR/Contents/Resources/Config/"
   fi
 fi
 
