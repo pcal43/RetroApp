@@ -227,7 +227,7 @@ else
 fi
 
 echo "Building application bundle."  >&2
-set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -r "$DRAG_ROM_PATH"
+set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -r "$DRAG_ROM_PATH" -s -b
 [ -n "$DRAG_OUTPUT_DIR" ] && set -- "$@" -o "$DRAG_OUTPUT_DIR"
 [ -n "$DRAG_ICNS" ]       && set -- "$@" -i "$DRAG_ICNS"
 "$RA_RETROAPP" bundle "$@"

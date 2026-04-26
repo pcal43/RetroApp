@@ -28,6 +28,20 @@ in MacOS.
                          can be generated with 'retroapp icns'.
                          Optional.  If omitted, a default icon will be used.
 
+    -s                   Make a standalone app that bundles the selected emulator.
+                         Optional  If ommitted, the launcher app will look for the
+                         emulator in /Applications.
+
+    -b                   Sandbox the emulator configuration for theis game.  If enabled,
+                         the launcher app will force the emulator to run with an
+                         isolated configuration in ~/Library/Application Support/RetroApp.
+                         Also, the current emulator settings will be bundled into the
+                         launcher app and copied into the sandbox config directory on
+                         first launch.
+                         Optional.  If ommitted, the launcher app will start the emulator 
+                         using its default global config (usually in 
+                         ~/Library/Application Support/EmulatorName/).
+
     -o outputDir         Directory that the new bundle will be created in.
                          Optional.  If omitted, the directory containing the 
                          rom file (romPath) will be used.
@@ -59,17 +73,22 @@ bundleError() {
   echo "Error: $1" >&2
 }
 
-while getopts "n:e:r:i:o:h" opt; do
+while getopts "n:e:r:i:o:sbh" opt; do
   case $opt in
     n) RA_APP_NAME="$OPTARG" ;;
     e) RA_EMULATOR_ID="$OPTARG" ;;
     r) RA_ROM_PATH="$OPTARG" ;;
     i) RA_ICNS_PATH="$OPTARG" ;;
     o) RA_OUTPUT_DIR="$OPTARG" ;;
+    s) BUILD_BUNDLED_EMULATOR_ENABLED=true ;;
+    b) BUILD_BUNDLED_CONFIG_ENABLED=true ;;
     h) usage ;;
     *) usage ;;
   esac
 done
+# Set defaults if not set by flags
+: "${BUILD_BUNDLED_EMULATOR_ENABLED:=false}"
+: "${BUILD_BUNDLED_CONFIG_ENABLED:=false}"
 shift $((OPTIND - 1))
 
 if [ -z "${RA_APP_NAME:-}" ]; then
