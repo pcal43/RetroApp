@@ -122,6 +122,7 @@ find "$BUILD_BUNDLE_DIR" -name "*.m4" | while IFS= read -r template_file; do
 		-DBUILD_GAME_NAME="$BUILD_GAME_NAME" \
 		-DBUILD_ROM_NAME="$BUILD_ROM_NAME" \
 		$( [ "$BUILD_SANDBOXED_CONFIG_ENABLED" = true ] && echo "-DBUILD_SANDBOXED_CONFIG_ENABLED=1" ) \
+		$( [ "$BUILD_BUNDLED_EMULATOR_ENABLED" = true ] && echo "-DBUILD_BUNDLED_EMULATOR_ENABLED=1" ) \
 		"$template_file" > "$output_file"
 	rm "$template_file"
 done

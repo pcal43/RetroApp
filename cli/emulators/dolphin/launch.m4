@@ -5,14 +5,16 @@ set -x
 RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/BUILD_ROM_NAME"
 
-# Find Dolphin: prefer a bundled copy, then fall back to /Applications.
-RUN_EMU_BUNDLED="${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
-if [ -e "$RUN_EMU_BUNDLED" ]; then
-  RUN_EMU_PATH="$RUN_EMU_BUNDLED"
-elif [ -e "/Applications/Dolphin.app" ]; then
-  RUN_EMU_PATH="/Applications/Dolphin.app"
-else
-  echo "Error: $RUN_EMU_PATH not found. Download from https://ares-emu.net/download" >&2
+
+ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED', `
+RUN_EMU_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/Dolphin.app"
+',
+'
+RUN_EMU_PATH="/Applications/Dolphin.app"
+')
+if ! [ -e "$RUN_EMU_PATH" ]; then
+  echo "Error: Dolphin not found at $RUN_EMU_PATH." >&2
+  echo 'Download from https://dolphin-emu.org/' >&2
   exit 1
 fi
 

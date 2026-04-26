@@ -37,5 +37,5 @@ fi
 if [ "${BUILD_BUNDLED_EMULATOR_ENABLED:-true}" = true ]; then
   echo "Bundling emulator application from $EMU_EMULATOR_PATH" >&2
   mkdir -p "$BUILD_BUNDLE_DIR/Contents/Resources/Emulator"
-  cp -r "$EMU_EMULATOR_PATH" "$BUILD_BUNDLE_DIR/Contents/Resources/Emulator/"
+  cp -r "$EMU_EMULATOR_PATH" "$BUILD_BUNDLE_DIR/Contents/Resources/Emulator/ares.app"
 fi

@@ -5,14 +5,16 @@ set -x
 RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 RUN_ROM_PATH="${RUN_BUNDLE_DIR}/Contents/Resources/Roms/BUILD_ROM_NAME"
 
-# Find Stella: prefer a bundled copy, then fall back to /Applications.
-RUN_EMU_BUNDLED="${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
-if [ -e "$RUN_EMU_BUNDLED" ]; then
-  RUN_EMU_PATH="$RUN_EMU_BUNDLED"
-elif [ -e "/Applications/Stella.app" ]; then
-  RUN_EMU_PATH="/Applications/Stella.app"
-else
-  echo "Error: Stella not found. Download from https://stella-emu.github.io" >&2
+
+ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED', `
+RUN_EMU_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/Stella.app"
+',
+'
+RUN_EMU_PATH="/Applications/Stella.app"
+')
+if ! [ -e "$RUN_EMU_PATH" ]; then
+  echo "Error: Stella not found at $RUN_EMU_PATH." >&2
+  echo 'Download from https://stella-emu.github.io' >&2
   exit 1
 fi
 

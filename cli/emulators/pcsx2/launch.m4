@@ -5,13 +5,16 @@ RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/BUILD_ROM_NAME"
 
 
-RUN_EMU_BUNDLED="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/"*.app
-if [ -e "$RUN_EMU_BUNDLED" ]; then
-  RUN_EMU_PATH="$RUN_EMU_BUNDLED"
-elif RUN_EMU_PATH=$(find /Applications -maxdepth 1 -name 'PCSX2*.app' -type d 2>/dev/null | sort | tail -1) && [ -n "$RUN_EMU_PATH" ]; then
-  :
-else
-  echo "Error: PCSX2 not found. Download from https://pcsx2.net/downloads" >&2
+
+ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED', `
+RUN_EMU_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/PCSX2.app"
+',
+'
+RUN_EMU_PATH=$(find /Applications -maxdepth 1 -name 'PCSX2*.app' -type d 2>/dev/null | sort | tail -1)
+')
+if [ -z "$RUN_EMU_PATH" ] || ! [ -e "$RUN_EMU_PATH" ]; then
+  echo "Error: PCSX2 not found at $RUN_EMU_PATH." >&2
+  echo 'Download from https://pcsx2.net/downloads' >&2
   exit 1
 fi
 

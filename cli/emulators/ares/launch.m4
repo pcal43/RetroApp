@@ -4,14 +4,18 @@ set -x
 RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 RUN_BUNDLED_CONFIG_DIR="$RUN_BUNDLE_DIR/Contents/Resources/Config/"
 
-# Find ares: prefer a bundled copy, then fall back to /Applications.
-RUN_EMU_BUNDLED="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/"*.app
-if [ -e "$RUN_EMU_BUNDLED" ]; then
-  RUN_EMU_PATH="$RUN_EMU_BUNDLED"
-elif [ -e "/Applications/ares.app" ]; then
-  RUN_EMU_PATH="/Applications/ares.app"
-else
-  echo "Error: ares not found. Download from https://ares-emu.net/download" >&2
+
+
+ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED', `
+RUN_EMU_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/ares.app"
+',
+'
+RUN_EMU_PATH="/Applications/ares.app"
+'
+)
+if ! [ -e "$RUN_EMU_BUNDLED" ]; then
+  echo "ERROR ares not found at $RUN_EMU_PATH." >&2
+  echo 'Download from https://ares-emu.net/download" >&2
   exit 1
 fi
 
