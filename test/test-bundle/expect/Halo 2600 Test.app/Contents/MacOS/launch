@@ -2,7 +2,7 @@
 set -x
 RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 
-RUN_HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/stella/Halo 2600 Test"
+RUN_HOME_SANDBOX_DIR="BUILD_RETROAPPS_SUPPORT_PATH/stella/Halo 2600 Test"
 RUN_SANDBOXED_CONFIG_DIR="$RUN_HOME_SANDBOX_DIR/Library/Application Support/Stella"
 RUN_ROM_PATH="${RUN_BUNDLE_DIR}/Contents/Resources/Roms/Halo2600.a26"
 

@@ -22,7 +22,7 @@ fi
 ifdef(`BUILD_SANDBOXED_CONFIG_ENABLED', `
 # If the sandboxed config dir does not exist, we must be running for the first time.  
 # Deploy the embedded config if so.
-RUN_HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/stella/BUILD_GAME_NAME"
+RUN_HOME_SANDBOX_DIR="BUILD_RETROAPPS_SUPPORT_PATH/stella/BUILD_GAME_NAME"
 RUN_SANDBOXED_CONFIG_DIR="$RUN_HOME_SANDBOX_DIR/Library/Application Support/Stella"
 if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR" ]; then
   set +e

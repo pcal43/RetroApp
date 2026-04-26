@@ -22,7 +22,7 @@ fi
 ifdef(`BUILD_SANDBOXED_CONFIG_ENABLED', `
 # If we have an embedded config and the sandboxed config dir does not exist, we must
 # be running for the first time.  Deploy the embedded config.
-RUN_SANDBOXED_CONFIG_DIR="$HOME/Library/Application Support/RetroApp/Dolphin/BUILD_GAME_NAME"
+RUN_SANDBOXED_CONFIG_DIR="BUILD_RETROAPPS_SUPPORT_PATH/Dolphin/BUILD_GAME_NAME"
 RUN_BUNDLED_CONFIG_DIR="$RUN_BUNDLE_DIR/Contents/Resources/Config/"
 if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR" ]; then
   set +e

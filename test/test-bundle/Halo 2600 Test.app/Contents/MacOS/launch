@@ -3,7 +3,7 @@ set -x
 BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 
 # HOME is sandboxed so the emulator stores its config per-game under RetroApp/
-HOME_SANDBOX_DIR="$HOME/Library/Application Support/RetroApp/Stella/Halo 2600 Test"
+HOME_SANDBOX_DIR="BUILD_RETROAPPS_SUPPORT_PATH/Stella/Halo 2600 Test"
 
 # The subdir where the emulator will read/write its config.
 EMU_SANDBOX_DIR="$HOME_SANDBOX_DIR/Library/Application Support/Stella"
