@@ -1,8 +1,8 @@
-# RetroAppMaker
+# RetroApp
 
-<img src="etc/icon.png" alt="RetroAppMaker" width="384">
+<img src="etc/icon.png" alt="RetroApp" width="384">
 
-**RetroAppMaker** makes it easy to assemble standalone MacOS desktop 
+**RetroApp** makes it easy to assemble standalone MacOS desktop 
 applications for running retro games. 
 
 You just give it 
@@ -19,7 +19,7 @@ You just give it
 
 See **Releases** to the right to download it yourself and give it a try!
 
-*Note: RetroAppMaker is still in alpha testing.  It works but it's still in
+*Note: RetroApp is still in alpha testing.  It works but it's still in
 the early stages.  I'm trying to get a sense of how much community interest 
 there is in the project before investing more time in it.*
 
@@ -30,7 +30,7 @@ and let me know!*
 
 ### Why would anyone want to use this?
 
-RetroAppMaker might be a good choice if:
+RetroApp might be a good choice if:
 
 * **You really only care about playing a few games.**  If you just have a dozen or 
 so retro games that you care about playing regularly on your mac, you may 
@@ -65,7 +65,7 @@ Well, yes...but also a little bit no.  It's true that you end up with a
 copy of an emulator for each game.  But in many cases, it's not a huge 
 amount of extra space, especially compared to the size of CD- and DVD- based roms.
 
-Also, RetroAppMaker uses 
+Also, RetroApp uses 
 [copy-on-write](https://bestreviews.net/the-magic-behind-apfs-copy-on-write/) 
 when duplicating emulators and ROMs.  Which means that as long as they stay
 on your computer, the extra 'copes' don't actually use any extra disk space!
@@ -75,14 +75,16 @@ be using up all of the space it says it is.
 ### What emulators are supported?
 
 * duckstation
-* nestopia
 * pcsx2
 * stella
+* ares
+* duckstation
+* dolphin
 
 ...and more coming soon!
 
 
 ### Is there a command-line interface?
 
-Yes, see `RetroAppMaker.app/Contents/Resources/cli/retroapp.` If 
+Yes, see `RetroApp.app/Contents/Resources/cli/retroapp.` If 
 there is interest, I'll add support for installing it on your PATH properly.

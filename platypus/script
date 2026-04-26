@@ -2,7 +2,7 @@
 
 # platypus copies this file into Resources and names it 'script'
 
-print "Running RetroAppMaker"
+print 'Welcome to RetroApp'
 print "Received $# argument(s):"
 for arg in "$@"; do echo "  $arg"; done
 

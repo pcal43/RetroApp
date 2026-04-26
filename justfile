@@ -15,22 +15,22 @@ build version="":
         VERSION=$(cat {{root_dir}}/version)
     fi
     mkdir -p {{build_dir}}
-    rm -f "{{build_dir}}/RetroAppMaker.app"
+    rm -f "{{build_dir}}/RetroApp.app"
     platypus \
-      --name RetroAppMaker \
+      --name RetroApp \
       --author 'pcal' \
       --app-version "$VERSION" \
       --interface-type "Text Window" \
       --interpreter "/bin/zsh" \
       --app-icon "{{root_dir}}/AppIcon.icns" \
-      --bundle-identifier "net.pcal.RetroAppMaker" \
+      --bundle-identifier "net.pcal.RetroApp" \
       --droppable \
       --bundled-file "{{ui_dir}}|{{cli_dir}}|{{root_dir}}/version" \
       --overwrite \
       "{{platypus_dir}}/script" \
-      "{{build_dir}}/RetroAppMaker.app"
-    cp version "{{build_dir}}/RetroAppMaker.app/Contents/Resources/cli/"
-    cp version "{{build_dir}}/RetroAppMaker.app/Contents/Resources/ui/"
+      "{{build_dir}}/RetroApp.app"
+    cp version "{{build_dir}}/RetroApp.app/Contents/Resources/cli/"
+    cp version "{{build_dir}}/RetroApp.app/Contents/Resources/ui/"
     open {{build_dir}}
 
 dmg dmg_path="" version="":
@@ -42,18 +42,18 @@ dmg dmg_path="" version="":
         just build $VERSION
 
         mkdir -p {{build_dir}}/tmp_dmg
-        cp -R {{build_dir}}/RetroAppMaker.app {{build_dir}}/tmp_dmg/
+        cp -R {{build_dir}}/RetroApp.app {{build_dir}}/tmp_dmg/
         ln -s /Applications {{build_dir}}/tmp_dmg/
 
 
         DMG_PATH="{{dmg_path}}"
         if [ -z "$DMG_PATH" ]; then
-            DMG_PATH="{{build_dir}}/RetroAppMaker-$VERSION.dmg"
+            DMG_PATH="{{build_dir}}/RetroApp-$VERSION.dmg"
         fi
 
         echo "Using version: $VERSION"
 
-        hdiutil create -volname "RetroAppMaker" \
+        hdiutil create -volname "RetroApp" \
                        -srcfolder {{build_dir}}/tmp_dmg \
                        -ov -format UDZO \
                        "${DMG_PATH}"
@@ -83,7 +83,7 @@ release: clean
     fi
 
     RELEASE_VERSION=${VERSION%+prerelease}
-    DMG_PATH="{{build_dir}}/RetroAppMaker-$RELEASE_VERSION.dmg"
+    DMG_PATH="{{build_dir}}/RetroApp-$RELEASE_VERSION.dmg"
     echo "Creating release version: $RELEASE_VERSION"
     just dmg "$DMG_PATH" "$RELEASE_VERSION" || { echo "DMG build failed"; exit 1; }
 
