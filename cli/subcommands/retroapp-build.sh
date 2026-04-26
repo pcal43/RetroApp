@@ -59,9 +59,9 @@ if [ ! -d "$BUILD_BUNDLE_TEMPLATE_DIR" ]; then
 	exit 1
 fi
 
-BUILD_LAUNCH_TEMPLATE="$RA_SCRIPT_DIR/emulators/$BUILD_EMULATOR_ID/launch.template"
+BUILD_LAUNCH_TEMPLATE="$RA_SCRIPT_DIR/emulators/$BUILD_EMULATOR_ID/launch.m4"
 if [ ! -f "$BUILD_LAUNCH_TEMPLATE" ]; then
-	echo "Error: no launch.template found for emulator '$BUILD_EMULATOR_ID' (looked in $BUILD_LAUNCH_TEMPLATE)" >&2
+	echo "Error: no launch.m4 found for emulator '$BUILD_EMULATOR_ID' (looked in $BUILD_LAUNCH_TEMPLATE)" >&2
 	exit 1
 fi
 
@@ -92,7 +92,7 @@ BUILD_BUNDLE_DIR="$BUILD_STAGING_DIR/${BUILD_APP_NAME}.app"
 rsync -a --exclude='.DS_Store' "$BUILD_BUNDLE_TEMPLATE_DIR/" "$BUILD_BUNDLE_DIR/"
 
 # Install the per-emulator launch template
-cp "$BUILD_LAUNCH_TEMPLATE" "$BUILD_BUNDLE_DIR/Contents/MacOS/launch.template"
+cp "$BUILD_LAUNCH_TEMPLATE" "$BUILD_BUNDLE_DIR/Contents/MacOS/launch.m4"
 
 # Source the emulator's bundle.sh to copy the ROM and embed config
 BUILD_EMU_BUNDLE_SH="$RA_SCRIPT_DIR/emulators/$BUILD_EMULATOR_ID/bundle.sh"
@@ -114,9 +114,9 @@ if [ -n "${BUILD_ICNS_PATH:-}" ]; then
 fi
 
 
-# Process all .template files using m4
-find "$BUILD_BUNDLE_DIR" -name "*.template" | while IFS= read -r template_file; do
-	output_file="${template_file%.template}"
+# Process all .m4 files using m4
+find "$BUILD_BUNDLE_DIR" -name "*.m4" | while IFS= read -r template_file; do
+	output_file="${template_file%.m4}"
 	m4 \
 		-DBUILD_GAME_NAME="$BUILD_GAME_NAME" \
 		-DBUILD_ROM_NAME="$BUILD_ROM_NAME" \
