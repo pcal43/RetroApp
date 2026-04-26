@@ -58,7 +58,15 @@ for size in $SIZES; do
   fi
   # If not square, pad to square using sips (built-in)
   if [ "$TARGET_W" -ne "$size" ] || [ "$TARGET_H" -ne "$size" ]; then
-    sips --padColor FFFFFF00 --padToHeightWidth $size $size "$RESIZED_PNG" --out "$FINAL_PNG"
+    if command -v magick >/dev/null 2>&1; then
+      magick "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
+    elif command -v convert >/dev/null 2>&1; then
+      convert "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
+    else
+      echo "WARNING: neither ImageMagick nor convert are installed, icon image will be padded with black pixels using sip." >&2
+      echo "consider running 'brew install imagemagick'"
+      sips --padColor FFFFFF --padToHeightWidth $size $size "$RESIZED_PNG" --out "$FINAL_PNG"
+    fi
   else
     mv "$RESIZED_PNG" "$FINAL_PNG"
   fi
