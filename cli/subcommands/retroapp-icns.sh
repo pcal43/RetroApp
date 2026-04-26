@@ -58,15 +58,15 @@ for size in $SIZES; do
   fi
   # If not square, pad to square using sips (built-in)
   if [ "$TARGET_W" -ne "$size" ] || [ "$TARGET_H" -ne "$size" ]; then
-#    if command -v magick >/dev/null 2>&1; then
-#      magick "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
-#    elif command -v convert >/dev/null 2>&1; then
-#      convert "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
-#    else
+    if command -v magick >/dev/null 2>&1; then
+      magick "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
+    elif command -v convert >/dev/null 2>&1; then
+      convert "$RESIZED_PNG" -background none -gravity center -extent ${size}x${size} "$FINAL_PNG"
+    else
       echo "WARNING: neither ImageMagick nor convert are installed. sips will pad with white pixels (no transparency)." >&2
       echo "For best results, run: brew install imagemagick"
       sips --padToHeightWidth $size $size "$RESIZED_PNG" --out "$FINAL_PNG"
-#    fi
+    fi
   else
     mv "$RESIZED_PNG" "$FINAL_PNG"
   fi
