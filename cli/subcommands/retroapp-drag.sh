@@ -206,7 +206,6 @@ DRAG_EMULATOR_ID=$(tr -d '[:space:]' < "$DRAG_EMU_FILE" | cut -d'/' -f1)
 
 # If no icon PNG was provided, try to download a thumbnail
 if [ -z "$DRAG_ICON_PNG" ]; then
-  echo "Downloading thumbnail..." >&2
   DRAG_ICON_PNG=$("$RA_RETROAPP" thumbnail "$DRAG_ROM_SYSTEM" "$DRAG_GAME_NAME") || DRAG_ICON_PNG=""
 fi
 
@@ -227,7 +226,7 @@ else
 fi
 
 echo "Building application bundle."  >&2
-set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -r "$DRAG_ROM_PATH" -s -b
+set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -r "$DRAG_ROM_PATH" -s
 [ -n "$DRAG_OUTPUT_DIR" ] && set -- "$@" -o "$DRAG_OUTPUT_DIR"
 [ -n "$DRAG_ICNS" ]       && set -- "$@" -i "$DRAG_ICNS"
 "$RA_RETROAPP" bundle "$@"

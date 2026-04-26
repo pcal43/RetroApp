@@ -28,11 +28,14 @@ in MacOS.
                          can be generated with 'retroapp icns'.
                          Optional.  If omitted, a default icon will be used.
 
-    -s                   Make a standalone app that bundles the selected emulator.
-                         Optional  If ommitted, the launcher app will look for the
+    -b                   Bundle the selected emulator into the launcher.  This can 
+                         signiicantly increase the size of the launcher app, but the 
+                         upside is that you have a fully self-contained app that 
+                         always runs the same way.
+                         Optional.  If ommitted, the launcher app will look for the
                          emulator in /Applications.
 
-    -b                   Sandbox the emulator configuration for theis game.  If enabled,
+    -s                   Sandbox the emulator configuration for this game.  If enabled,
                          the launcher app will force the emulator to run with an
                          isolated configuration in ~/Library/Application Support/RetroApp.
                          Also, the current emulator settings will be bundled into the
@@ -80,8 +83,8 @@ while getopts "n:e:r:i:o:sbh" opt; do
     r) RA_ROM_PATH="$OPTARG" ;;
     i) RA_ICNS_PATH="$OPTARG" ;;
     o) RA_OUTPUT_DIR="$OPTARG" ;;
-    s) BUILD_BUNDLED_EMULATOR_ENABLED=true ;;
-    b) BUILD_BUNDLED_CONFIG_ENABLED=true ;;
+    b) BUILD_BUNDLED_EMULATOR_ENABLED=true ;;
+    s) BUILD_BUNDLED_CONFIG_ENABLED=true ;;
     h) usage ;;
     *) usage ;;
   esac

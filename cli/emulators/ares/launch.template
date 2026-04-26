@@ -30,7 +30,7 @@ if [ -d "\$RUN_BUNDLED_CONFIG_DIR" ] && ! [ -d "\$RUN_SANDBOXED_CONFIG_DIR" ]; t
 fi
 
 if [ -f "\$RUN_SANDBOXED_CONFIG_DIR/settings.bml" ]; then
-  open "\$RUN_EMU_PATH" --args --fullscreen --settings "\$RUN_SANDBOXED_CONFIG_DIR/settings.bml" "\$RUN_ROM_PATH"
+  open "\$RUN_EMU_PATH" --args --settings "\$RUN_SANDBOXED_CONFIG_DIR/settings.bml" "\$RUN_ROM_PATH"
 else
-  open "\$RUN_EMU_PATH" --args --fullscreen "\$RUN_ROM_PATH"
+  open "\$RUN_EMU_PATH" --args "\$RUN_ROM_PATH"
 fi
