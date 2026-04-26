@@ -8,7 +8,7 @@ RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/BUILD_ROM_NAME"
 
 ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED', 
   `RUN_EMU_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/PCSX2.app"',
-  `RUN_EMU_PATH=$(find /Applications -maxdepth 1 -name 'PCSX2*.app' -type d 2>/dev/null | sort | tail -1)'
+  `RUN_EMU_PATH=$(find /Applications -maxdepth 1 -name "PCSX2*.app" -type d 2>/dev/null | sort | tail -1)'
 )
 
 if ! [ -e "$RUN_EMU_PATH" ]; then
