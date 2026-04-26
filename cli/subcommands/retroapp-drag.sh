@@ -44,7 +44,7 @@ Now we should have all of the following information:
 - emulator id
 - icns file
 
-which is exactly what we need to run retroapp-bundle.  Go ahead and run it.
+which is exactly what we need to run retroapp-build.  Go ahead and run it.
 
 
 
@@ -229,7 +229,7 @@ echo "Building application bundle."  >&2
 set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -r "$DRAG_ROM_PATH" -s
 [ -n "$DRAG_OUTPUT_DIR" ] && set -- "$@" -o "$DRAG_OUTPUT_DIR"
 [ -n "$DRAG_ICNS" ]       && set -- "$@" -i "$DRAG_ICNS"
-"$RA_RETROAPP" bundle "$@"
+"$RA_RETROAPP" build "$@"
 
 rm -f "$DRAG_ICNS"
 rm -rf "$DRAG_EXTRACT_DIR"
