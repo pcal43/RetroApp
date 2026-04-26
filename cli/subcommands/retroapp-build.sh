@@ -113,28 +113,17 @@ if [ -n "${BUILD_ICNS_PATH:-}" ]; then
 	cp "$BUILD_ICNS_PATH" "$BUILD_BUNDLE_DIR/Contents/Resources/AppIcon.icns"
 fi
 
-BUILD_PROCESSOR=$(mktemp /tmp/retroapp-processor-XXXXXX)
-cat > "$BUILD_PROCESSOR" << 'PYEOF'
-import sys, os
-src, dst = sys.argv[1], sys.argv[2]
-content = open(src).read()
-for key, val in sorted(os.environ.items(), key=lambda x: -len(x[0])):
-		if key.startswith(('RETROAPP_', 'BUILD_')):
-				content = content.replace('${' + key + '}', val)
-				content = content.replace('$' + key, val)
-content = content.replace('\\$', '$')
-open(dst, 'w').write(content)
-PYEOF
 
-# Process all .template files
-
+# Process all .template files using m4
 find "$BUILD_BUNDLE_DIR" -name "*.template" | while IFS= read -r template_file; do
 	output_file="${template_file%.template}"
-	python3 "$BUILD_PROCESSOR" "$template_file" "$output_file"
+	m4 \
+		-DBUILD_GAME_NAME="$BUILD_GAME_NAME" \
+		-DBUILD_ROM_NAME="$BUILD_ROM_NAME" \
+		$( [ "$BUILD_SANDBOXED_CONFIG_ENABLED" = true ] && echo "-DBUILD_SANDBOXED_CONFIG_ENABLED=1" ) \
+		"$template_file" > "$output_file"
 	rm "$template_file"
 done
-
-rm -f "$BUILD_PROCESSOR"
 
 
 
