@@ -5,13 +5,11 @@ RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
 RUN_BUNDLED_CONFIG_DIR="$RUN_BUNDLE_DIR/Contents/Resources/Config/"
 
 
-ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED', `
-RUN_EMU_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/ares.app"
-',
-'
-RUN_EMU_PATH="/Applications/ares.app"
-'
+ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED', 
+  `RUN_EMU_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/ares.app"',
+  `RUN_EMU_PATH="/Applications/ares.app"'
 )
+
 if ! [ -e "$RUN_EMU_BUNDLED" ]; then
   echo "ERROR ares not found at $RUN_EMU_PATH." >&2
   echo 'Download from https://ares-emu.net/download" >&2
@@ -21,7 +19,8 @@ fi
 
 # NOTE launching ares in --fullscreen doesn't work very well right now
 
-ifdef(`BUILD_SANDBOXED_CONFIG_ENABLED', `
+ifdef(`BUILD_SANDBOXED_CONFIG_ENABLED',
+`
 # If the sandboxed config dir does not exist, we must
 # be running for the first time.  Deploy the embedded config.
 # NOTE that ares seems to resistant to the HOME manipulation that we do with
@@ -37,7 +36,7 @@ fi
 open "$RUN_EMU_PATH" --args --settings "$RUN_SANDBOXED_CONFIG_DIR/settings.bml" "$RUN_ROM_PATH"
 ',
 
-'
+`
 # Run the emulator with the default config
 open "$RUN_EMU_PATH" --args "$RUN_ROM_PATH"
 '
