@@ -3,7 +3,7 @@ set -x
 
 
 RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
-RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/"BUILD_ROM_NAME
+RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/BUILD_ROM_NAME"
 
 # Find Dolphin: prefer a bundled copy, then fall back to /Applications.
 RUN_EMU_BUNDLED="${RUN_BUNDLE_DIR}/Contents/Resources/Emulator/"*.app
@@ -20,7 +20,7 @@ fi
 ifdef(`BUILD_SANDBOXED_CONFIG_ENABLED', `
 # If we have an embedded config and the sandboxed config dir does not exist, we must
 # be running for the first time.  Deploy the embedded config.
-RUN_SANDBOXED_CONFIG_DIR="$HOME/Library/Application Support/RetroApp/Dolphin/"BUILD_GAME_NAME
+RUN_SANDBOXED_CONFIG_DIR="$HOME/Library/Application Support/RetroApp/Dolphin/BUILD_GAME_NAME"
 RUN_BUNDLED_CONFIG_DIR="$RUN_BUNDLE_DIR/Contents/Resources/Config/"
 if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR" ]; then
   set +e

@@ -92,6 +92,7 @@ BUILD_BUNDLE_DIR="$BUILD_STAGING_DIR/${BUILD_APP_NAME}.app"
 rsync -a --exclude='.DS_Store' "$BUILD_BUNDLE_TEMPLATE_DIR/" "$BUILD_BUNDLE_DIR/"
 
 # Install the per-emulator launch template
+mkdir -p "$BUILD_BUNDLE_DIR/Contents/MacOS/"
 cp "$BUILD_LAUNCH_TEMPLATE" "$BUILD_BUNDLE_DIR/Contents/MacOS/launch.m4"
 
 # Source the emulator's bundle.sh to copy the ROM and embed config
