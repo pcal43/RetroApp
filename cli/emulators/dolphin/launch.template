@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -x
 RUN_BUNDLE_DIR="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)/../.."
-RUN_HOME_SANDBOX_DIR="\$HOME/Library/Application Support/RetroApp/Dolphin/${BUILD_GAME_NAME}"
+RUN_SANDBOXED_CONFIG_DIR="\$HOME/Library/Application Support/RetroApp/Dolphin/${BUILD_GAME_NAME}"
 RUN_ROM_PATH="\$RUN_BUNDLE_DIR/Contents/Resources/Roms/${BUILD_ROM_NAME}"
 RUN_BUNDLED_CONFIG_DIR="\$RUN_BUNDLE_DIR/Contents/Resources/Config/"
 
@@ -12,7 +12,7 @@ if [ -e "\$RUN_EMU_BUNDLED" ]; then
 elif [ -e "/Applications/Dolphin.app" ]; then
   RUN_EMU_PATH="/Applications/Dolphin.app"
 else
-  echo "Error: ares not found. Download from https://ares-emu.net/download" >&2
+  echo "Error: $RUN_EMU_PATH not found. Download from https://ares-emu.net/download" >&2
   exit 1
 fi
 
