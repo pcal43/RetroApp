@@ -24,8 +24,8 @@ https://github.com/user-attachments/assets/49f888a9-b9ad-44bb-94b7-376bba11f4f3
 * Click the launcher and play!
 
 _NOTE: RetroApp currently assumes that you have the target emulator installed in your
-/Applications directory and that you've configured the way you want (bios, controllers, 
-video settings).  Future versions could make this more seamless._
+/Applications directory and that you've configured it the way you want (bios, controllers, 
+video settings).  Future versions will make this process more seamless._
 
 ## Feedback
 
