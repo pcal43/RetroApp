@@ -19,7 +19,7 @@ OUTPUT_DIR="$SCRIPT_DIR/output"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-"$RETROAPP" build -n "$APP_NAME" -e stella -r "$ROM" -o "$OUTPUT_DIR"
+"$RETROAPP" build -n "$APP_NAME" -e stella -s atari2600 -r "$ROM" -o "$OUTPUT_DIR"
 
 APP_DIR="$OUTPUT_DIR/${APP_NAME}.app"
 

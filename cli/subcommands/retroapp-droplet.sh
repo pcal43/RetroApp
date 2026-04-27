@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+set -x
+
 usage() {
   cat >&2 <<'EOF'
 Usage: retroapp drag [-h] FILE1 [FILE2] [FILE3] [...]
@@ -51,6 +53,8 @@ which is exactly what we need to run retroapp-build.  Go ahead and run it.
 EOF
   exit 1
 }
+
+
 
 while getopts "h" opt; do
   case $opt in
@@ -194,15 +198,25 @@ if [ -z "$DRAG_ROM_PATH" ]; then
   exit 1
 fi
 
-# Look up emulator id from cli/systems/<system name>
-DRAG_EMU_FILE="$RA_SCRIPT_DIR/systems/${DRAG_ROM_SYSTEM}"
-if [ ! -f "$DRAG_EMU_FILE" ]; then
-  echo "ERROR emulator not supported for system '$DRAG_ROM_SYSTEM'" >&2
+
+# Look up system metadata file by searching for SYS_RETROARCH_NAME assignment
+DRAG_EMU_FILE=""
+while IFS= read -r file; do
+  # shellcheck disable=SC2016
+  if grep -q "^SYS_RETROARCH_NAME=\"$DRAG_ROM_SYSTEM\"" "$file"; then
+    DRAG_EMU_FILE="$file"
+    break
+  fi
+done < <(find "$RA_SCRIPT_DIR/systems" -type f -name "*.sh")
+
+if [ -z "$DRAG_EMU_FILE" ]; then
+  echo "ERROR: No system metadata found for system '$DRAG_ROM_SYSTEM' (searched for SYS_RETROARCH_NAME match)" >&2
   exit 1
 fi
-# The file may contain just an id ("nestopia") or a path ("stella/Stella-6.0.app");
-# extract just the first path component as the emulator id.
-DRAG_EMULATOR_ID=$(tr -d '[:space:]' < "$DRAG_EMU_FILE" | cut -d'/' -f1)
+# Source the system file to get SYS_EMULATORS and other metadata
+# shellcheck disable=SC1090
+. "$DRAG_EMU_FILE"
+DRAG_EMULATOR_ID="$SYS_EMULATORS"  # FIXME deal with multiple emulators
 
 # If no icon PNG was provided, try to download a thumbnail
 if [ -z "$DRAG_ICON_PNG" ]; then
@@ -226,7 +240,7 @@ else
 fi
 
 echo "Building application bundle."  >&2
-set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -r "$DRAG_ROM_PATH" -s
+set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -s "$SYS_ID" -r "$DRAG_ROM_PATH" -c
 [ -n "$DRAG_OUTPUT_DIR" ] && set -- "$@" -o "$DRAG_OUTPUT_DIR"
 [ -n "$DRAG_ICNS" ]       && set -- "$@" -i "$DRAG_ICNS"
 "$RA_RETROAPP" build "$@"
