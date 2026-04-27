@@ -33,12 +33,12 @@ if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR" ]; then
   cp -r "$RUN_BUNDLED_CONFIG_DIR/*" "$RUN_SANDBOXED_CONFIG_DIR/"
   set -e
 fi
-open "$RUN_EMU_PATH" --args --system Famicom --settings "$RUN_SANDBOXED_CONFIG_DIR/settings.bml" "$RUN_ROM_PATH"
+open "$RUN_EMU_PATH" --args --system "BUILD_ARES_SYSTEM" --settings "$RUN_SANDBOXED_CONFIG_DIR/settings.bml" "$RUN_ROM_PATH"
 ',
 
 `
 # Run the emulator with the default config
-open "$RUN_EMU_PATH" --args "$RUN_ROM_PATH"
+open "$RUN_EMU_PATH" --args --system "BUILD_ARES_SYSTEM" "$RUN_ROM_PATH"
 '
 )
 
