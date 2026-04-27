@@ -12,24 +12,20 @@ https://github.com/user-attachments/assets/49f888a9-b9ad-44bb-94b7-376bba11f4f3
 * Fully sandboxes configuration files for each game (optional)
 * Embeds the emulator for a truly standalone launcher (optional)
 
+## Installation
+
+* Download the [latest release](https://github.com/pcal43/RetroApp/releases)
+* Open the `.dmg` and drag RetroApp into `/Applications`
+
 ## Usage
 
 * Drag a rom file onto RetroApp
 * It creates standlone launcher app
 * Click the launcher and play!
 
-## Installation
-
-* Download the [latest release](https://github.com/pcal43/RetroApp/releases)
-* Open the `.dmg` and drag RetroApp into `/Applications`
-
-![Rom Select Screen](etc/screenshot-rom-select.png)
-
-...and out pops a self-contained MacOS app that runs your game.
-
-<img src="etc/screenshot-dock.png" alt="MacOS Dock" width="700">
-
-See **Releases** to the right to download it yourself and give it a try!
+NOTE: RetroApp currently assumes that you have the target emulator installed in your
+/Applications directory and that you've configured the way you want (bios, controllers, 
+video settings).  Future versions will make this more seamless.
 
 ## Feedback
 
