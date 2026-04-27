@@ -1,13 +1,9 @@
-
-
-
-
 # RetroApp
 
 **RetroApp** creates standalone MacOS desktop applications from 
 retro game rom files.  Drag-and-drop a rom, out pops an app!
 
-https://github.com/user-attachments/assets/75bd3f55-e2d3-4a99-aab7-f581164521d5
+https://github.com/user-attachments/assets/49f888a9-b9ad-44bb-94b7-376bba11f4f3
 
 ## Features
 
