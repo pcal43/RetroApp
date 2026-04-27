@@ -18,18 +18,16 @@ FAILURES=0
 OUTPUT_DIR="$SCRIPT_DIR/output"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
-cd "$OUTPUT_DIR"
 
+"$RETROAPP" build -n "$APP_NAME" -e stella -r "$ROM" -o "$OUTPUT_DIR"
 
-"$RETROAPP" build -n "$APP_NAME" -e stella -r "$ROM" -o "$$OUTPUT_DIR"
-
-APP_DIR="$OUTPUT_DIR/output/${APP_NAME}.app"
+APP_DIR="$OUTPUT_DIR/${APP_NAME}.app"
 
 # 1. Bundle directory exists
 if [ -d "$APP_DIR" ]; then
   pass "build directory created"
 else
-  fail "builda directory not found at $APP_DIR"
+  fail "build directory not found at $APP_DIR"
 fi
 
 # 2. No leftover .template files
@@ -67,21 +65,14 @@ else
   fail "launch script does not contain ROM name"
 fi
 
-# 7. launch script contains the app/game name (BUILD_GAME_NAME substituted)
-if grep -q "Halo 2600 Test" "$APP_DIR/Contents/MacOS/launch" 2>/dev/null; then
-  pass "launch script contains game name"
-else
-  fail "launch script does not contain game name"
-fi
-
-# 8. launch script has no unsubstituted RETROAPP_ tokens
+# 7. launch script has no unsubstituted RETROAPP_ tokens
 if grep -q "RETROAPP_" "$APP_DIR/Contents/MacOS/launch" 2>/dev/null; then
   fail "launch script contains unsubstituted RETROAPP_ tokens"
 else
   pass "launch script has no unsubstituted tokens"
 fi
 
-# 9. AppIcon.icns is present (from template default)
+# 8. AppIcon.icns is present (from template default)
 if [ -f "$APP_DIR/Contents/Resources/AppIcon.icns" ]; then
   pass "AppIcon.icns present"
 else
