@@ -34,7 +34,7 @@ in MacOS.
                          Optional.  If ommitted, the launcher app will look for the
                          emulator in /Applications.
 
-    -s                   Sandbox the emulator configuration for this game.  If enabled,
+    -c                   Sandbox the emulator configuration for this game.  If enabled,
                          the launcher app will force the emulator to run with an
                          isolated configuration in ~/Library/Application Support/RetroApp.
                          Also, the current emulator settings will be bundled into the
@@ -80,7 +80,7 @@ while getopts "n:e:r:i:o:sbh" opt; do
 		i) BUILD_ICNS_PATH="$OPTARG" ;;
 		o) BUILD_OUTPUT_DIR="$OPTARG" ;;
 		b) BUILD_BUNDLED_EMULATOR_ENABLED=true ;;
-		s) BUILD_SANDBOXED_CONFIG_ENABLED=true ;;
+		c) BUILD_SANDBOXED_CONFIG_ENABLED=true ;;
 		h) usage ;;
 		*) usage ;;
 	esac
