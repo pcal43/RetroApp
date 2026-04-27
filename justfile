@@ -42,9 +42,9 @@ dmg dmg_path="" version="":
         just build $VERSION
 
         mkdir -p {{build_dir}}/tmp_dmg
+        cp -R LICENSE {{build_dir}}/tmp_dmg/__LICENSE__
         cp -R {{build_dir}}/RetroApp.app {{build_dir}}/tmp_dmg/
         ln -s /Applications {{build_dir}}/tmp_dmg/
-
 
         DMG_PATH="{{dmg_path}}"
         if [ -z "$DMG_PATH" ]; then
