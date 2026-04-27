@@ -102,7 +102,7 @@ amount of extra space, especially compared to the size of CD- and DVD- based ROM
 Also, RetroApp uses 
 [copy-on-write](https://bestreviews.net/the-magic-behind-apfs-copy-on-write/) 
 when duplicating emulators and ROMs.  Which means that as long as they stay
-on your computer, the extra 'copeis' don't actually use any extra disk space.
+on your computer, the extra 'copies' don't actually use any extra disk space.
 
 
 ### Is there a command-line interface?
