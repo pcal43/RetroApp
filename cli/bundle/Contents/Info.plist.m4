@@ -15,8 +15,8 @@
 		<key>CFBundleVersion</key>
 		<string>1.0</string>
 		<key>CFBundleName</key>
-		<string>BUILD_GAME_NAME</string>
+		<string>M4_GAME_NAME</string>
 		<key>CFBundleDisplayName</key>
-		<string>BUILD_GAME_NAME</string>
+		<string>M4_GAME_NAME</string>
 	</dict>
 </plist>

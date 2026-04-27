@@ -3,9 +3,9 @@ set -x
 
 
 RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
-RUN_ROM_PATH="${RUN_BUNDLE_DIR}/Contents/Resources/Roms/BUILD_ROM_NAME"
+RUN_ROM_PATH="${RUN_BUNDLE_DIR}/Contents/Resources/Roms/M4_ROM_NAME"
 
-ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED',
+ifdef(`M4_BUNDLED_EMULATOR_ENABLED',
 `RUN_EMU_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Emulator/Stella.app"',
 `RUN_EMU_PATH="/Applications/Stella.app"'
 )
@@ -17,13 +17,13 @@ if ! [ -e "$RUN_EMU_PATH" ]; then
 fi
 
 
-ifdef(`BUILD_SANDBOXED_CONFIG_ENABLED',
+ifdef(`M4_SANDBOXED_CONFIG_ENABLED',
 `
 # If the sandboxed config dir does not exist, we must be running for the first time.  
 # Deploy the embedded config if so.
-RUN_HOME_SANDBOX_DIR="BUILD_RETROAPPS_SUPPORT_PATH/stella/BUILD_GAME_NAME"
+RUN_HOME_SANDBOX_DIR="M4_RETROAPPS_SUPPORT_PATH/stella/M4_GAME_NAME"
 RUN_SANDBOXED_CONFIG_DIR="$RUN_HOME_SANDBOX_DIR/Library/Application Support/Stella"
-if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR" ]; then
+if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR}" ]; then
   set +e
   mkdir -p "${RUN_SANDBOXED_CONFIG_DIR}"
   cp -r "${RUN_BUNDLE_DIR}/Contents/Resources/Config/." "${RUN_SANDBOXED_CONFIG_DIR}/"

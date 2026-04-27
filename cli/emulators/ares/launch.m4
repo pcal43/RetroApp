@@ -25,20 +25,20 @@ ifdef(`BUILD_SANDBOXED_CONFIG_ENABLED',
 # be running for the first time.  Deploy the embedded config.
 # NOTE that ares seems to resistant to the HOME manipulation that we do with
 # other emulators, so the sandboxing might not be airtight.
-RUN_HOME_SANDBOX_DIR="BUILD_RETROAPPS_SUPPORT_PATH/ares/BUILD_GAME_NAME"
-RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/BUILD_ROM_NAME"
+RUN_HOME_SANDBOX_DIR="M4_RETROAPPS_SUPPORT_PATH/ares/M4_GAME_NAME"
+RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/M4_ROM_NAME"
 if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR" ]; then
   set +e
   mkdir -p "$RUN_SANDBOXED_CONFIG_DIR"
   cp -r "$RUN_BUNDLED_CONFIG_DIR/*" "$RUN_SANDBOXED_CONFIG_DIR/"
   set -e
 fi
-open "$RUN_EMU_PATH" --args --system "BUILD_ARES_SYSTEM" --settings "$RUN_SANDBOXED_CONFIG_DIR/settings.bml" "$RUN_ROM_PATH"
+open "$RUN_EMU_PATH" --args --system "M4_ARES_SYSTEM" --settings "$RUN_SANDBOXED_CONFIG_DIR/settings.bml" "$RUN_ROM_PATH"
 ',
 
 `
 # Run the emulator with the default config
-open "$RUN_EMU_PATH" --args --system "BUILD_ARES_SYSTEM" "$RUN_ROM_PATH"
+open "$RUN_EMU_PATH" --args --system "M4_ARES_SYSTEM" "$RUN_ROM_PATH"
 '
 )
 
