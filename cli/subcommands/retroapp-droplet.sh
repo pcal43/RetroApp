@@ -194,14 +194,22 @@ if [ -z "$DRAG_ROM_PATH" ]; then
   exit 1
 fi
 
-# Look up emulator id from cli/systems/<system name>
 
-DRAG_EMU_FILE="$RA_SCRIPT_DIR/systems/${DRAG_ROM_SYSTEM}.sh"
-if [ ! -f "$DRAG_EMU_FILE" ]; then
-  echo "ERROR emulator not supported for system '$DRAG_ROM_SYSTEM'" >&2
+# Look up system metadata file by searching for SYS_RETROARCH_NAME assignment
+DRAG_EMU_FILE=""
+while IFS= read -r file; do
+  # shellcheck disable=SC2016
+  if grep -q "^SYS_RETROARCH_NAME=\"$DRAG_ROM_SYSTEM\"" "$file"; then
+    DRAG_EMU_FILE="$file"
+    break
+  fi
+done < <(find "$RA_SCRIPT_DIR/systems" -type f -name "*.sh")
+
+if [ -z "$DRAG_EMU_FILE" ]; then
+  echo "ERROR: No system metadata found for system '$DRAG_ROM_SYSTEM' (searched for SYS_RETROARCH_NAME match)" >&2
   exit 1
 fi
-# Source the system file to get SYS_EMULATORS
+# Source the system file to get SYS_EMULATORS and other metadata
 # shellcheck disable=SC1090
 . "$DRAG_EMU_FILE"
 DRAG_EMULATOR_ID="$SYS_EMULATORS"
