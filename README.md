@@ -27,6 +27,11 @@ _NOTE: RetroApp currently assumes that you have the target emulator installed in
 /Applications directory and that you've configured it the way you want (bios, controllers, 
 video settings).  Future versions will make this process more seamless._
 
+## Legal
+
+**RetroApp does not provide any game ROMs.  Please only use ROMs from games you own or are otherwise authorized to use.**
+
+
 ## Feedback
 
 RetroApp is still an alpha. I'm trying to get a sense of how much community 
@@ -110,3 +115,18 @@ be using up all of the space it says it is.
 
 Yes, see `RetroApp.app/Contents/Resources/cli/retroapp.` If 
 there is interest, I'll add support for installing it on your PATH properly.
+
+
+
+## Acknowledgments
+
+RetroApp depends on the following software:
+
+* Platypus
+* Ares
+* PCSX2
+* Stella
+* Dolphin
+* ImageMagick
+
+Thanks very much to authors of these programs for their hard work.
