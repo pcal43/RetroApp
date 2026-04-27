@@ -23,9 +23,9 @@ https://github.com/user-attachments/assets/49f888a9-b9ad-44bb-94b7-376bba11f4f3
 * It creates standlone launcher app
 * Click the launcher and play!
 
-NOTE: RetroApp currently assumes that you have the target emulator installed in your
+_NOTE: RetroApp currently assumes that you have the target emulator installed in your
 /Applications directory and that you've configured the way you want (bios, controllers, 
-video settings).  Future versions will make this more seamless.
+video settings).  Future versions could make this more seamless._
 
 ## Feedback
 
