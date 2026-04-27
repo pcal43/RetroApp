@@ -1,9 +1,15 @@
+
+
+
+
 # RetroApp
 
 <img src="etc/icon.png" alt="RetroApp" width="128">
 
 **RetroApp** creates standalone MacOS desktop applications from 
 retro game rom files.  Drag-and-drop a rom, out pops an app!
+
+https://github.com/user-attachments/assets/75bd3f55-e2d3-4a99-aab7-f581164521d5
 
 ## Features
 
