@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+set -x
+
 usage() {
   cat >&2 <<'EOF'
 Usage: retroapp drag [-h] FILE1 [FILE2] [FILE3] [...]
@@ -51,6 +53,8 @@ which is exactly what we need to run retroapp-build.  Go ahead and run it.
 EOF
   exit 1
 }
+
+
 
 while getopts "h" opt; do
   case $opt in
@@ -212,7 +216,7 @@ fi
 # Source the system file to get SYS_EMULATORS and other metadata
 # shellcheck disable=SC1090
 . "$DRAG_EMU_FILE"
-DRAG_EMULATOR_ID="$SYS_EMULATORS"
+DRAG_EMULATOR_ID="$SYS_EMULATORS"  # FIXME deal with multiple emulators
 
 # If no icon PNG was provided, try to download a thumbnail
 if [ -z "$DRAG_ICON_PNG" ]; then
@@ -236,9 +240,6 @@ else
 fi
 
 echo "Building application bundle."  >&2
-[ -n "$DRAG_OUTPUT_DIR" ] && set -- "$@" -o "$DRAG_OUTPUT_DIR"
-[ -n "$DRAG_ICNS" ]       && set -- "$@" -i "$DRAG_ICNS"
-"$RA_RETROAPP" build "$@"
 set -- -n "$DRAG_GAME_NAME" -e "$DRAG_EMULATOR_ID" -s "$SYS_ID" -r "$DRAG_ROM_PATH" -c
 [ -n "$DRAG_OUTPUT_DIR" ] && set -- "$@" -o "$DRAG_OUTPUT_DIR"
 [ -n "$DRAG_ICNS" ]       && set -- "$@" -i "$DRAG_ICNS"

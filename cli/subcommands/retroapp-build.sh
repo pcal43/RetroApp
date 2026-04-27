@@ -59,7 +59,7 @@ bundleError() {
 }
 
 # Parse options and assign to BUILD_ variables
-while getopts "n:e:r:i:o:s:bh" opt; do
+while getopts "n:e:r:i:o:s:bch" opt; do
 	case $opt in
 		n) BUILD_APP_NAME="$OPTARG" ;;
 		e) BUILD_EMULATOR_ID="$OPTARG" ;;
