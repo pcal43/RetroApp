@@ -75,7 +75,7 @@ bundleError() {
 while getopts "n:e:r:i:o:sbh" opt; do
 	case $opt in
 		n) BUILD_APP_NAME="$OPTARG" ;;
-		e) BUILD_EMULATOR_ID="$OPTARG" ;;
+		e) BUILD_SYSTEM_NAME="$OPTARG" ;;
 		r) BUILD_ROM_PATH="$OPTARG" ;;
 		i) BUILD_ICNS_PATH="$OPTARG" ;;
 		o) BUILD_OUTPUT_DIR="$OPTARG" ;;
@@ -89,15 +89,24 @@ done
  : "${BUILD_BUNDLED_EMULATOR_ENABLED:=false}"
  : "${BUILD_SANDBOXED_CONFIG_ENABLED:=false}"
 shift $((OPTIND - 1))
-
 if [ -z "${BUILD_APP_NAME:-}" ]; then
 	echo "Error: -n appName is required." >&2
 	usage
 fi
-if [ -z "${BUILD_EMULATOR_ID:-}" ]; then
-	echo "Error: -e emulatorId is required." >&2
+if [ -z "${BUILD_SYSTEM_NAME:-}" ]; then
+	echo "Error: -e system name is required (now expects system name, not emulator id)." >&2
 	usage
 fi
+
+# Source the system metadata file to get SYS_EMULATORS
+SYSTEM_FILE="$RA_SCRIPT_DIR/systems/${BUILD_SYSTEM_NAME}.sh"
+if [ ! -f "$SYSTEM_FILE" ]; then
+	echo "Error: system metadata file not found: $SYSTEM_FILE" >&2
+	exit 1
+fi
+# shellcheck disable=SC1090
+. "$SYSTEM_FILE"
+BUILD_EMULATOR_ID="$SYS_EMULATORS"
 if [ -z "${BUILD_ROM_PATH:-}" ]; then
 	echo "Error: -r romPath is required." >&2
 	usage

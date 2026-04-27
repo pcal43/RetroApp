@@ -195,14 +195,16 @@ if [ -z "$DRAG_ROM_PATH" ]; then
 fi
 
 # Look up emulator id from cli/systems/<system name>
-DRAG_EMU_FILE="$RA_SCRIPT_DIR/systems/${DRAG_ROM_SYSTEM}"
+
+DRAG_EMU_FILE="$RA_SCRIPT_DIR/systems/${DRAG_ROM_SYSTEM}.sh"
 if [ ! -f "$DRAG_EMU_FILE" ]; then
   echo "ERROR emulator not supported for system '$DRAG_ROM_SYSTEM'" >&2
   exit 1
 fi
-# The file may contain just an id ("nestopia") or a path ("stella/Stella-6.0.app");
-# extract just the first path component as the emulator id.
-DRAG_EMULATOR_ID=$(tr -d '[:space:]' < "$DRAG_EMU_FILE" | cut -d'/' -f1)
+# Source the system file to get SYS_EMULATORS
+# shellcheck disable=SC1090
+. "$DRAG_EMU_FILE"
+DRAG_EMULATOR_ID="$SYS_EMULATORS"
 
 # If no icon PNG was provided, try to download a thumbnail
 if [ -z "$DRAG_ICON_PNG" ]; then
