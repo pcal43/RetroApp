@@ -1,7 +1,7 @@
 # RetroApp
 
 **RetroApp** creates standalone MacOS desktop applications from 
-retro game rom files.  Drag-and-drop a rom, out pops an app!
+retro game ROM files.  Drag-and-drop a ROM, out pops an app!
 
 https://github.com/user-attachments/assets/49f888a9-b9ad-44bb-94b7-376bba11f4f3
 
@@ -19,8 +19,8 @@ https://github.com/user-attachments/assets/49f888a9-b9ad-44bb-94b7-376bba11f4f3
 
 ## Usage
 
-* Drag a rom file onto RetroApp
-* It creates standlone launcher app
+* Drag a ROM file onto RetroApp
+* It creates standalone launcher app
 * Click the launcher and play!
 
 _NOTE: RetroApp currently assumes that you have the target emulator installed in your
@@ -72,7 +72,7 @@ RetroApp might be a good choice if:
 * **You really only care about playing a few games.**  If you just have a dozen or 
 so retro games that you care about playing regularly on your mac, you may 
 find a small set of regular desktop applications easier to manage than
-a full-features launcher.
+a full-featured launcher.
 
 * **You want to use Steam as your launcher for everything.**  Configuring
 emulators as *Non-Steam Games* can be tedious; it's much easier to just point 
@@ -87,9 +87,9 @@ that is completely separate from other games using the same emulator.
 This can be helpful if you want cleanly-separated settings and save files 
 for each game. 
 
-* You just think **having a bunch of Playstation discs in your MacOS Dock looks cool.**
+* You just think **having a bunch of PlayStation discs in your MacOS Dock looks cool.**
 
-If none of these apply to you, there lots of other launchers out there that
+If none of these apply to you, there are lots of other launchers out there that
 will probably work better for you, especially if you care about managing
 a lot of ROMs.
 
@@ -97,7 +97,7 @@ a lot of ROMs.
 
 Well, yes...but also a little bit no.  It's true that you end up with a 
 copy of an emulator for each game.  But in many cases, it's not a huge 
-amount of extra space, especially compared to the size of CD- and DVD- based roms.
+amount of extra space, especially compared to the size of CD- and DVD- based ROMs.
 
 Also, RetroApp uses 
 [copy-on-write](https://bestreviews.net/the-magic-behind-apfs-copy-on-write/) 
@@ -107,7 +107,7 @@ on your computer, the extra 'copeis' don't actually use any extra disk space.
 
 ### Is there a command-line interface?
 
-Yes, see `RetroApp.app/Contents/Resources/cli/retroapp.` If 
+Yes, see `RetroApp.app/Contents/Resources/cli/retroapp`.  If 
 there is interest, I'll add support for installing it on your PATH properly.
 
 
@@ -123,4 +123,4 @@ RetroApp uses or depends on the following software:
 * [Platypus](https://sveinbjorn.org/platypus)
 * [Stella](https://stella-emu.github.io/)
 
-Thanks very much to authors of these programs for their hard work.
+Thanks very much to the authors of these programs for their hard work.
