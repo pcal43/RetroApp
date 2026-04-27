@@ -51,7 +51,7 @@ Here's the current list.  I'll be adding more if there's community interest.
 |--------|-------------|
 | Atari - 2600 | stella |
 | Coleco - ColecoVision | ares |
-| Nintendo - Family Computer Disk System | nestopia |
+| Nintendo - Family Computer Disk System | ares |
 | Nintendo - Game Boy | ares |
 | Nintendo - Game Boy Advance | ares |
 | Nintendo - Game Boy Color | ares |
