@@ -50,22 +50,6 @@ in MacOS.
     -o outputDir         Directory that the new bundle will be created in.
                          Optional.  If omitted, the directory containing the 
                          rom file (romPath) will be used.
-    
-
-This tool works as follows:
-- It locates the bundle template in cli/templates/[emulatorId].  It's an error if it doesn't exist.
-- Copy the contents of the template's 'bundle' subdirectory into a staging directory.
-- Copy the rom provided by -r into the staging directory at [stagingdir]/Contents/Resources/Roms.  Create the Roms directory if needed.  
-- If -i is specified, copy that file into the stageing directory at [stagingdir]/Contents/Resources/AppIcon.icns.  Overwrite the existing file.
-- Scan the staging dir for any files with names ending in .template.  These need to 
-be rewritten as new files without the .template extension and performing the following
-substitutions: RETROAPP_APP_NAME (the -n appName) and BUILD_ROM_NAME the name of the file that provided by -r (basename only)
-- Delete the .template files from the staging directory
-- Ensure the file [stagingdir]/Contents/MacOS/launch is executable (chmod +x)
-
-Note that this is a rework of retroapp-build.sh.  You can refer to that at a template
-but note that the process here is significantly different.  Also refer to templates/stella
-for an example of the kind of template we will be processing.
 "
 }
 
@@ -75,10 +59,11 @@ bundleError() {
 }
 
 # Parse options and assign to BUILD_ variables
-while getopts "n:e:r:i:o:sbh" opt; do
+while getopts "n:e:r:i:o:s:bh" opt; do
 	case $opt in
 		n) BUILD_APP_NAME="$OPTARG" ;;
 		e) BUILD_EMULATOR_ID="$OPTARG" ;;
+		s) BUILD_SYSTEM_ID="$OPTARG" ;;
 		r) BUILD_ROM_PATH="$OPTARG" ;;
 		i) BUILD_ICNS_PATH="$OPTARG" ;;
 		o) BUILD_OUTPUT_DIR="$OPTARG" ;;
