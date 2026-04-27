@@ -1,0 +1,21 @@
+{
+  "message": "Please select a ROM file and an emulator to run it with.",
+
+  "selectitems": [
+    {
+      "title": "Emulator:",
+      "values": [ ${UI_BLUEPRINT_SELECTIONS} ],
+      "default": "${UI_BLUEPRINT}",
+      "required" : true
+    }
+  ],
+  "textfield": [
+    {
+      "title": "ROM File",
+      "value": "${UI_ROM_PATH}",
+      "fileselect" : true,
+      "required" : true
+    }
+  ],
+  "button1text": "Next"
+}

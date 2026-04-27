@@ -1,0 +1,58 @@
+#!/bin/zsh
+
+set -eu
+
+# shellcheck disable=SC2034
+RA_RETROAPP=$0
+RA_SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck disable=SC2034
+RA_BLUEPRINTS_DIR="$RA_SCRIPT_DIR/blueprints"
+RA_SUBCOMMANDS_DIR="$RA_SCRIPT_DIR/subcommands"
+
+
+EXIT_BAD_OPTION=2
+EXIT_BAD_SUBCOMMAND=3
+EXIT_NO_SUBCOMMAND=4
+EXIT_MISSING_DIRECTORY=5
+# shellcheck disable=SC2034
+EXIT_EMULATOR_NOT_FOUND=50
+# shellcheck disable=SC2034
+EXIT_BAD_EMULATOR=51
+EXIT_NEED_LAUNCH_ROM=60
+EXIT_AMBIGUOUS_LAUNCH_ROM=61
+EXIT_UNKNOWN=99
+
+usage() {
+  echo "Usage: retroapp [-h] [-v] [-x] SUBCOMMAND SUBCOMMAND-ARGUMENTS..." >&2
+}
+
+while getopts "hvx" opt; do
+  case $opt in
+    v) cat "${RA_SCRIPT_DIR}/version"; exit 0 ;;
+    x) set -x ;;
+    h) usage; exit 0 ;;
+    *) usage; exit $EXIT_BAD_OPTION ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ -z "${1:-}" ]; then
+  echo "Please provide a subcommand." >&2
+  usage
+  exit $EXIT_NO_SUBCOMMAND
+fi
+
+RA_SUBCOMMAND="$RA_SUBCOMMANDS_DIR/retroapp-$1.sh"
+if [ ! -f "$RA_SUBCOMMAND" ]; then
+  echo "Invalid subcommand: $1" >&2
+  usage
+  exit $EXIT_BAD_SUBCOMMAND
+fi
+
+shift  # Remove subcommand name
+OPTIND=1
+
+
+
+# shellcheck disable=SC1090
+. "$RA_SUBCOMMAND"

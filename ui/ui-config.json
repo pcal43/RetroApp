@@ -1,0 +1,19 @@
+{
+  "message": "Do you want to store the current emulator configuration in the app?  If you do, your configuration will be portable if you ever run the app on a new machine.",
+
+  "checkbox": [
+    {
+      "label": "Store emulator Config settings?",
+      "checked": true
+    }
+  ],
+  "textfield": [
+    {
+      "title": "Emulator Config Path",
+      "value": "${UI_EMULATOR_CONFIG_PATH}",
+      "fileselect" : true,
+      "required" : false
+    }
+  ],
+  "button1text": "Next"
+}

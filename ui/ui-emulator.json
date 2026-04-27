@@ -1,0 +1,13 @@
+{
+  "message": "${UI_MESSAGE}",
+
+  "textfield": [
+    {
+      "title": "Emulator Path",
+      "value": "${UI_EMULATOR_PATH}",
+      "fileselect" : true,
+      "required" : true
+    }
+  ],
+  "button1text": "Next"
+}
