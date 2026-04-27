@@ -117,16 +117,16 @@ Yes, see `RetroApp.app/Contents/Resources/cli/retroapp.` If
 there is interest, I'll add support for installing it on your PATH properly.
 
 
-
 ## Acknowledgments
 
-RetroApp depends on the following software:
+RetroApp uses or depends on the following software:
 
-* Platypus
-* Ares
-* PCSX2
-* Stella
-* Dolphin
-* ImageMagick
+* [Ares](https://ares-emu.net/)
+* [Dolphin](https://dolphin-emu.org/)
+* [Duckstation](https://github.com/stenzek/duckstation)
+* [ImageMagick](https://imagemagick.org/)
+* [PCSX2](https://pcsx2.net/)
+* [Platypus](https://sveinbjorn.org/platypus)
+* [Stella](https://stella-emu.github.io/)
 
 Thanks very much to authors of these programs for their hard work.
