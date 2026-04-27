@@ -2,7 +2,7 @@
 set -x
 
 RUN_BUNDLE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/../.."
-RUN_BUNDLED_CONFIG_DIR="$RUN_BUNDLE_DIR/Contents/Resources/Config/"
+RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/M4_ROM_NAME"
 
 
 ifdef(`BUILD_BUNDLED_EMULATOR_ENABLED', 
@@ -26,7 +26,7 @@ ifdef(`BUILD_SANDBOXED_CONFIG_ENABLED',
 # NOTE that ares seems to resistant to the HOME manipulation that we do with
 # other emulators, so the sandboxing might not be airtight.
 RUN_HOME_SANDBOX_DIR="M4_RETROAPPS_SUPPORT_PATH/ares/M4_GAME_NAME"
-RUN_ROM_PATH="$RUN_BUNDLE_DIR/Contents/Resources/Roms/M4_ROM_NAME"
+RUN_BUNDLED_CONFIG_DIR="$RUN_BUNDLE_DIR/Contents/Resources/Config/"
 if ! [ -d "$RUN_SANDBOXED_CONFIG_DIR" ]; then
   set +e
   mkdir -p "$RUN_SANDBOXED_CONFIG_DIR"
