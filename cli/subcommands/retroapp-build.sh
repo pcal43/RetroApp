@@ -181,7 +181,7 @@ find "$BUILD_BUNDLE_DIR" -name "*.m4" | while IFS= read -r template_file; do
 		-DM4_GAME_NAME="$BUILD_GAME_NAME" \
 		-DM4_ROM_NAME="$BUILD_ROM_NAME" \
 		-DM4_RETROAPPS_SUPPORT_PATH="$BUILD_RETROAPPS_SUPPORT_PATH" \
-		-DM4_ARES_SYSTEM="${SYS_ARES_SYSTEM:-}""" \
+		-DM4_ARES_SYSTEM="${SYS_ARES_NAME:-}""" \
 		$( [ "$BUILD_SANDBOXED_CONFIG_ENABLED" = true ] && echo "-DM4_SANDBOXED_CONFIG_ENABLED=1" ) \
 		$( [ "$BUILD_BUNDLED_EMULATOR_ENABLED" = true ] && echo "-DM4_BUNDLED_EMULATOR_ENABLED=1" ) \
 		"$template_file" > "$output_file"

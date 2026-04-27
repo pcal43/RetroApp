@@ -1,3 +1,4 @@
 #!/bin/zsh
 SYS_EMULATORS=ares
-SYS_ARES_SYSTEM="Game Boy Advance"
+SYS_ARES_NAME="Game Boy Advance"
+SYS_RETROARCH_NAME="Nintendo - Game Boy Advance"
