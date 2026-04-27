@@ -122,5 +122,8 @@ RetroApp uses or depends on the following software:
 * [PCSX2](https://pcsx2.net/)
 * [Platypus](https://sveinbjorn.org/platypus)
 * [Stella](https://stella-emu.github.io/)
+* [no-intro.org](https://datomatic.no-intro.org/index.php?page=search&s=64)
+* [redump.og](http://wiki.redump.org/index.php?title=Redump.org)
+* [libretro-database](https://github.com/libretro/libretro-database)
 
 Thanks very much to the authors of these programs for their hard work.
