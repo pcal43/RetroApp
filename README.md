@@ -9,8 +9,8 @@ https://github.com/user-attachments/assets/49f888a9-b9ad-44bb-94b7-376bba11f4f3
 
 * Create standalone retro game launchers for a variety of popular systems and emulators
 * Automatically downloads box art for the game and creates a MacOS icon from it
-* Sandboxed configuration files for each game (optional)
-* Embed the emulator for a truly standalone app (optional)
+* Fully sandboxes configuration files for each game (optional)
+* Embeds the emulator for a truly standalone launcher (optional)
 
 ## Usage
 
@@ -33,12 +33,11 @@ See **Releases** to the right to download it yourself and give it a try!
 
 ## Feedback
 
-RetroApp is still an alpha.  It works but it's still in
-the early stages.  I'm trying to get a sense of how much community interest 
-there is in the project before investing more time in it.
+RetroApp is still an alpha. I'm trying to get a sense of how much community 
+interest there is in something like this before investing more time in it.
 
 If you think it's a useful idea, come to my [discord channel](https://discord.pcal.net) 
-and let me know!*
+and let me know!
 
 ---
 
