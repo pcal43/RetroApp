@@ -60,16 +60,19 @@ dmg dmg_path="" version="":
         rm -rf {{build_dir}}/tmp_dmg
         echo "DMG created at ${DMG_PATH}"
 
-release: clean
+test:
+    {{root_dir}}/test/run-all.sh
+
+release: clean test
     #!/usr/bin/env sh
     set -e
 
-    #CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    #if [[ "$CURRENT_BRANCH" != "main" ]]; then
-    #    echo "Error: Releases must be performed on the main branch" >&2
-    #    echo "Current branch: $CURRENT_BRANCH" >&2
-    #    exit 1
-    #fi
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [[ "$CURRENT_BRANCH" != "main" ]]; then
+        echo "Error: Releases must be performed on the main branch" >&2
+        echo "Current branch: $CURRENT_BRANCH" >&2
+        exit 1
+    fi
     if [[ -n $(git status --porcelain) ]]; then
         echo "Error: Git working directory is not clean" >&2
         echo "Please commit or stash changes before releasing" >&2
