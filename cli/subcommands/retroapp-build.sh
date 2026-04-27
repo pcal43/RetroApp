@@ -20,6 +20,9 @@ in MacOS.
                          Run 'retroapp list-emulators' for a full list.
                          Required.
 
+    -s systemId          The id of the sytem that the ROM runs on, e.g. 'nes' or 'atari2600'.
+                         Required.
+
     -r romPath           Path to rom file for the launcher to run.
                          Required.
 
@@ -111,6 +114,10 @@ if [ -n "${BUILD_ICNS_PATH:-}" ] && [ ! -f "$BUILD_ICNS_PATH" ]; then
 	exit 1
 fi
 
+if [ -z "${BUILD_SYSTEM_ID:-}" ]; then
+    echo "Error: -s systemId is required." >&2
+    usage
+fi
 BUILD_BUNDLE_TEMPLATE_DIR="$RA_SCRIPT_DIR/bundle"
 if [ ! -d "$BUILD_BUNDLE_TEMPLATE_DIR" ]; then
 	echo "Error: bundle template directory not found: $BUILD_BUNDLE_TEMPLATE_DIR" >&2
@@ -124,6 +131,14 @@ if [ ! -f "$BUILD_LAUNCH_TEMPLATE" ]; then
 fi
 
 BUILD_EMU_INFO="$RA_SCRIPT_DIR/emulators/$BUILD_EMULATOR_ID/info.sh"
+# Source system metadata
+BUILD_SYSTEM_INFO="$RA_SCRIPT_DIR/systems/$BUILD_SYSTEM_ID/info.sh"
+if [ ! -f "$BUILD_SYSTEM_INFO" ]; then
+    echo "Error: no info.sh found for system '$BUILD_SYSTEM_ID' (looked in $BUILD_SYSTEM_INFO)" >&2
+    exit 1
+fi
+# shellcheck disable=SC1090
+. "$BUILD_SYSTEM_INFO"
 if [ ! -f "$BUILD_EMU_INFO" ]; then
 	echo "Error: no info.sh found for emulator '$BUILD_EMULATOR_ID' (looked in $BUILD_EMU_INFO)" >&2
 	exit 1
